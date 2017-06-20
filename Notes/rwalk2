@@ -1,0 +1,110 @@
+
+#define CALLBACK(NODE, COVER, CBP, CBDATA, LIMITER, RES)		\
+	do								\
+		{							\
+		if ((*CBP))						\
+			{						\
+			int		CBres;				\
+									\
+			CBres = (**(CBP))((NODE), (COVER), (CBDATA));	\
+			switch (CBres)					\
+				{					\
+				case EAVL_OK:				\
+					break;				\
+									\
+				case EAVL_FINISHED:			\
+					(*CBP) = NULL;			\
+					break;				\
+									\
+				case EAVL_LIMIT:			\
+					(LIMITER) = 1;			\
+					break;				\
+									\
+				default:				\
+					(*CBP) = NULL;			\
+					(RES) = CBres;			\
+				}					\
+			}						\
+		} while (0)
+
+
+#define RWALK2(NODE, DIR, WANT, CB, CBDATA, RES)			\
+	do								\
+		{							\
+		cb_t*		RW2_cb = (CB);				\
+									\
+		(RES) = rwalk2(						\
+				(NODE),					\
+				(DIR),					\
+				(WANT),					\
+				&RW2_cb,				\
+				(CBDATA)				\
+				);					\
+		} while (0)
+
+
+int rwalk2(
+		node_t*			node,
+		dir_t			dir,
+		order_mask_t		want,
+		cb_t**			cb,
+		void*			cbdata
+		)
+	{
+	node_t*			T0;
+	node_t*			T1;
+	int			limiter = 0;
+	int			error = 0;
+
+	if (!node || !*cb || !(want & (MASK_PRE | MASK_IN | MASK_POST)))
+		{
+		return 0;
+		}
+
+	T0 = GET_CHILD(node, OTHER(dir));
+	T1 = GET_CHILD(node, dir);
+
+	if (!error && *cb && T0 && (want & MASK_PRE))
+		{
+		CALLBACK(node, MASK_PRE, cb, cbdata, limiter, error);
+		}
+
+	if (!error && *cb && !limiter && T0)
+		{
+		error = rwalk2(T0, dir, want, cb, cbdata);
+		}
+
+	if (!error && *cb
+			&& (
+				(want & MASK_IN)
+				|| (!T0 && (want & MASK_PRE))
+				|| (!T1 && (want & MASK_POST))
+				)
+			)
+		{
+		CALLBACK(
+				node,
+				want & (
+					MASK_IN
+					| ((T0) ? 0u : MASK_PRE)
+					| ((T1) ? 0u : MASK_POST)
+					),
+				cb,
+				cbdata,
+				limiter,
+				error
+				);
+		}
+
+	if (!error && *cb && !limiter && T1)
+		{
+		error = rwalk2(T1, dir, want, cb, cbdata);
+		}
+
+	if (!error && *cb && T1 && (want & MASK_POST))
+		{
+		CALLBACK(node, MASK_POST, cb, cbdata, limiter, error);
+		}
+
+	return error;
+	}

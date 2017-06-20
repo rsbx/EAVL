@@ -1,0 +1,169 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_checks 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Checks_Available, \%EAVLs_Checks_Available, \%EAVLc_Checks_Available \- available \%EAVL checks
+.br
+\%EAVLp_Checks_Enabled, \%EAVLs_Checks_Enabled, \%EAVLc_Checks_Enabled \- enabled \%EAVL checks
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "extern unsigned int " EAVLp_Checks_Available ;
+.BI "extern unsigned int " EAVLp_Checks_Enabled ;
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "extern unsigned int " EAVLs_Checks_Available ;
+.BI "extern unsigned int " EAVLs_Checks_Enabled ;
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "extern unsigned int " EAVLc_Checks_Available ;
+.BI "extern unsigned int " EAVLc_Checks_Enabled ;
+.fi
+
+.SH DESCRIPTION
+The global variables
+.BR \%EAVLp_Checks_Available ", " \%EAVLs_Checks_Available ", and " \%EAVLc_Checks_Available
+are bitmasks identifying what checks were made available when the \%EAVL library
+was compiled for the \%EAVL tree type.
+.sp
+The global variables
+.BR \%EAVLp_Checks_Enabled ", " \%EAVLs_Checks_Enabled ", and " \%EAVLc_Checks_Enabled
+are bitmasks identifying which checks, of those available, are enabled for the
+\%EAVL tree type.
+.sp
+The provided checks validate important aspects of the \%EAVL data structures
+and aid to the calling code programmer to facilitate use of the \%EAVL library
+properly. The intent is for the calling code programmer to enable the checks
+during development and to disable them once the calling code correctly follows
+the \%EAVL library use protocols.
+.sp
+Checks may be enabled or disabled at any time unless otherwise indicated below.
+
+.SS Checks
+.TP
+.B \%EAVL_CHECK_CALLBACK
+Checks that callback functions are following the proper protocol for the
+callback type.
+.TP
+.B \%EAVL_CHECK_CONTEXT
+Checks if the calling code and the \%EAVL library are following the context use
+protocol properly. This check SHOULD NOT be enabled or disabled while there
+are associated contexts of the same \%EAVL tree type.
+.TP
+.B \%EAVL_CHECK_ORDER
+Checks if the array of node pointers given to
+.BR \%EAVLp_Tree_Load "(), " \%EAVLs_Tree_Load "(), and " \%EAVLc_Tree_Load ()
+is sorted properly and without equivalent nodes.
+.TP
+.B \%EAVL_CHECK_PARAM
+Checks the supplied function parameters.
+.TP
+.B \%EAVL_CHECK_TREE
+Checks that tree is an AVL tree and that the
+.BR \%EAVL_cbVerify (7)
+callback, if provided, does not indicate an error.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_CALLBACK
+A retryable callback error occurred. The same \%EAVL operation may be attempted
+again after the reason for the callback error return is ameliorated.
+.TP
+.B \%EAVL_ERROR_ALIGNMENT
+Parameter misaligned.
+.TP
+.B \%EAVL_ERROR_CALLBACK
+A non-retryable callback error occurred. This indicates a code error.
+.TP
+.B \%EAVL_ERROR_COMPARE
+Unexpected compare result.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+The context is not in the proper state for the operation attempted or just
+completed.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+An invalid \%EAVL function parameter was provided.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+The tree failed the tree validation checks. This indicates a code error.
+
+.SH RESOURCE USAGE
+The following table identifies the resource usage of the available and enabled
+checks in addition to the resource usage of the individual \%EAVL functions.
+Available but not enabled checks resource usage is negligible. The resource
+usage of unavailable checks is zero.
+.TS
+L	C	C	C	C
+L	|C	C	C	C|.
+	Work	Heap	Stack	Pathe*
+	_	_	_	_
+EAVL_CHECK_TREE	\(*O(n)	\(*O(0)	\(*O(log(n))	\(*O(0)
+EAVL_CHECK_CONTEXT	\(*O(log(n)+log(c))	\(*O(0)	\(*O(1)	\(*O(log(n))
+EAVL_CHECK_ORDER	\(*O(n)	\(*O(0)	\(*O(1)	\(*O(0)
+EAVL_CHECK_PARAM	\(*O(1)	\(*O(0)	\(*O(1)	\(*O(0)
+EAVL_CHECK_CALLBACK	\(*O(i)	\(*O(0)	\(*O(1)	\(*O(0)
+	_	_	_	_
+.TE
+Where
+.I n
+is the number of nodes in the tree, 
+.I c
+is the number of contexts associated with the tree,
+.I i
+is the number of callback invocations.
+.sp
+* Pathe usage is due to the \%EAVL?_cbPathe() callbacks. For the \%EAVL pTree tree
+type, Pathe usage is \(*O(0) for all checks.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Tree_Load (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_cbVerify (7)
+.ad
+.hy 1

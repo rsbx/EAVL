@@ -1,0 +1,80 @@
+EAVL(7)                         RSBX Libraries                         EAVL(7)
+
+
+
+NAME
+       EAVL - Embedded AVL tree data structures library
+
+
+DESCRIPTION
+       The  embedded  AVL  tree data structure library is a flexible and effi‐
+       cient library defining and  managing  the  relationships  between  data
+       structures implementing several distinct AVL tree types.
+
+
+   Features
+       *      EAVL  data  structures  may  be embedded in calling code managed
+              data structures.
+
+       *      The contents of the tree nodes is entirely managed by the  call‐
+              ing code.
+
+       *      A  rich  set  of functions for manipulating and managing the AVL
+              tree.
+
+       *      A complete set of manual pages.
+
+       *      A comprehensive set of granular validation checks  can  be  made
+              available at compilation time and enabled/disabled at runtime.
+
+
+   Tree Types
+       "p" (parent)
+              This  EAVL tree type is distinguished by not requiring the over‐
+              head of an EAVL_cbPathe(7) callback.
+
+       "s" (small)
+              This EAVL tree type is distinguished by having the smallest node
+              size.
+
+       "c" (copy on write)
+              This  EAVL  tree  type is distinguished by the ability to "copy"
+              trees with Ο(1) work upfront  and  duplicating  nodes  later  as
+              needed.
+
+
+   Checks
+       Validation  checks  are provided to check important aspects of the EAVL
+       data structures and as an aid to the calling code programmer to facili‐
+       tate proper usage of the EAVL library.
+
+       EAVL_CHECK_CALLBACK
+              Checks that callback functions are following the proper protocol
+              for the callback type.
+
+       EAVL_CHECK_CONTEXT
+              Checks if the calling code and the EAVL  library  are  following
+              the context use protocol properly.
+
+       EAVL_CHECK_ORDER
+              Checks if the array of node pointers is sorted properly.
+
+       EAVL_CHECK_PARAM
+              Checks function parameters.
+
+       EAVL_CHECK_TREE
+              Checks   that   tree   is   a   valid  AVL  tree  and  that  the
+              EAVL_cbVerify(7) callback, if provided,  does  not  indicate  an
+              error.
+
+
+SEE ALSO
+       EAVL_Clear(3), EAVL_Context_Management(3), EAVL_Find(3),
+       EAVL_FirstNext(3), EAVL_Fixup(3), EAVL_Insert(3), EAVL_Load(3),
+       EAVL_Remove(3), EAVL_Split(3), EAVL_Tree_Management(3),
+       EAVL_cbCompare(7), EAVL_cbDup(7), EAVL_cbFixup(7), EAVL_cbPathe(7),
+       EAVL_cbRelease(7), EAVL_cbVerify(7), EAVL_checks(7), EAVL_macros(7)
+
+
+
+EAVL                              2017-06-20                           EAVL(7)

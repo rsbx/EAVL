@@ -1,0 +1,163 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_Tree_Management 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Tree_Init, \%EAVLs_Tree_Init, \%EAVLc_Tree_Init \- initialize \%EAVL tree structure
+.br
+\%EAVLp_Tree_Release, \%EAVLs_Tree_Release, \%EAVLc_Tree_Release \- release \%EAVL tree structure
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_Tree_Init(EAVLp_tree_t* " tree ", EAVLp_tree_t* " existing ","
+.in +5n
+.BI "EAVLp_cbset_t* " cbset ");"
+.in
+.br
+.BI "int EAVLp_Tree_Release(EAVLp_tree_t* " tree ");"
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_Tree_Init(EAVLs_tree_t* " tree ", EAVLs_tree_t* " existing ","
+.in +5n
+.BI "EAVLs_cbset_t* " cbset ");"
+.in
+.br
+.BI "int EAVLs_Tree_Release(EAVLs_tree_t* " tree ");"
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_Tree_Init(EAVLc_tree_t* " tree ", EAVLc_tree_t* " existing ","
+.in +5n
+.BI "EAVLc_cbset_t* " cbset ");"
+.in
+.br
+.BI "int EAVLc_Tree_Release(EAVLc_tree_t* " tree ");"
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_Tree_Init "(), " \%EAVLs_Tree_Init "(), and " \%EAVLc_Tree_Init ()
+functions initialize an \%EAVL?_tree_t structure with address
+.I \%tree
+for use by the \%EAVL library.
+.sp
+The
+.BR \%EAVLp_Tree_Release "(), " \%EAVLs_Tree_Release "(), and " \%EAVLc_Tree_Release ()
+functions test if an \%EAVL tree structure with address
+.I \%tree
+may be safely freed or reused.
+
+.SH PARAMETERS
+.TP
+.I \%tree
+Address of the \%EAVL tree structure to initialize or free/reuse.
+.TP
+.I \%existing
+An already initialized \%EAVL structure of the same tree type to use the same
+callback functions from.
+.BR  \%EAVLc_Tree_Init ()
+will also link the root of
+.I \%tree
+to the root of
+.I \%existing
+to create a "copy on write" copy of the contents of
+.IR \%existing .
+.TP
+.I \%cbset
+A pointer to a cbset structure of the appropriate \%EAVL tree type with \%EAVL
+tree type appropriate callback pointers or NULL if
+.I \%existing
+is non NULL.  The
+.BR \%EAVLp_Tree_Init "() and " \%EAVLs_Tree_Init "()"
+functions only require the compare member to be non NULL. The
+.BR \%EAVLp_Tree_Init "()"
+function requires the compare and dup members to be non NULL.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success: the \%EAVL tree structure is initialize or may be freed/reused.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned by
+.BR \%EAVLp_Tree_Release "(), " \%EAVLs_Tree_Release "(), and " \%EAVLc_Tree_Release ()
+if the \%EAVL
+.I \%tree
+has associated contexts.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned by
+.BR \%EAVLp_Tree_Init "(), " \%EAVLs_Tree_Init "(), and " \%EAVLc_Tree_Init ()
+if the function was called with invalid parameters. and by
+.BR \%EAVLp_Tree_Release "(), " \%EAVLs_Tree_Release "(), and " \%EAVLc_Tree_Release ()
+if
+.I \%tree
+is NULL.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned by
+.BR \%EAVLp_Tree_Release "(), " \%EAVLs_Tree_Release "(), and " \%EAVLc_Tree_Release ()
+if
+.I \%tree
+is not empty.
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe
+_	_	_	_
+\(*O(1)	\(*O(0)	\(*O(1)	\(*O(0)
+_	_	_	_
+.TE
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Context_Management (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbDup (7),
+.BR \%EAVL_cbFixup (7),
+.BR \%EAVL_cbVerify (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

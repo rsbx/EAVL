@@ -1,0 +1,75 @@
+Remove fixup cases:
+
+
+Case 1:
+
+              P             ->             P
+              |             ->             |
+              A             ->             A
+               \            ->              \
+                X           ->
+
+	Dir: R				Dir: R
+	A-Bal: R	Path: -		S-Bal: -
+					S-Hgt: -1
+
+
+Case 2:
+
+              P             ->             P
+              |             ->             |
+              A             ->             A
+             / \            ->            / \
+            B   X           ->           B
+
+	Dir: R				Dir: R
+	A-Bal: -	Path: -		A-Bal: L
+			break		S-Hgt: -
+
+
+Case 3:
+
+              P             ->             P
+              |             ->             |
+              A             ->             B
+             / \            ->            / \
+            B   X           ->           C   A
+           /                ->                \
+          C                 ->
+
+	Dir: R		Rot: 1-L	Dir: R
+	A-Bal: L	Path: +1	B-Bal: -
+	B-Bal: L			S-Hgt: -1
+
+
+
+Case 4:
+
+              P             ->             P
+              |             ->             |
+              A             ->             B
+             / \            ->            / \
+            B   X           ->           C   A
+           / \              ->              / \
+          C   D             ->             D
+
+	Dir: R		Rot: 1-L	Dir: R
+	A-Bal: L	Path: +1	B-Bal: R
+	B-Bal: -	break		S-Hgt: -
+
+
+
+Case 5:
+
+              P             ->             P
+              |             ->             |
+              A             ->             C
+             / \            ->            / \
+            B   X           ->           B   A
+             \              ->                \
+              C             ->
+
+	Dir: R		Rot: 2-L	Dir: R
+	A-Bal: L	Path: +1	C-Bal: -
+	B-Bal: R			S-Hgt: -1
+

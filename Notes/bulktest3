@@ -1,0 +1,144 @@
+#!/usr/bin/perl -w
+
+#
+# Build bottom-up
+#
+
+use strict;
+
+my $count = 1;
+
+$| = 1;
+
+while ()
+	{
+	my $levels = 0;
+	my $base = 1;
+	my $i;
+	my $j;
+
+	while (($base<<1) < ($count+1))
+		{
+		$levels++;
+		$base <<= 1;
+		}
+
+#	printf "%8d: %8d %8d\n", $count, $levels, $base;
+
+	my @nodes = ();
+
+	my $delta = ($count+1) & ($base-1);
+
+printf "%8d: %8d %8d %8d\n", $count, $levels, $base, $delta;
+
+	my $lower_ints = $base;
+	my $lower_base = ($delta) ? 1 : 2;
+	my $lower_shift = $levels;
+	my $lower_mask = $lower_ints-1;
+
+	my $upper_ints = $lower_ints>>1;
+	my $upper_base = $lower_base<<1;
+	my $upper_shift = $lower_shift-1;
+	my $upper_mask = $upper_ints-1;
+
+	while ($upper_ints)
+		{
+		my $upper_start = 0;
+		my $upper_next = 0;
+		my $upper_fract = 0;
+		my $upper_size;
+		my $upper_mid;
+
+		my $lower_start = 0;
+		my $lower_next = 0;
+		my $lower_fract = 0;
+		my $lower_size;
+		my $lower_mid;
+
+		my $next_fract = 0;
+
+		for ($i=0; $i<$upper_ints; $i++)
+			{
+			$upper_size = $upper_base;
+			$upper_fract += $delta;
+			$upper_size += $upper_fract >> $upper_shift;
+			$upper_fract &= $upper_mask;
+			$upper_next += $upper_size;
+
+			$upper_mid = $upper_start + $lower_base + (($lower_fract + $delta) >> $lower_shift) - 1;
+
+##printf "\t%8d %8d %8d\n", $upper_start, $upper_next, $upper_size;
+
+#printf "\t%8d\n", $upper_mid;
+
+
+			for ($j=0; $j<2; $j++)
+				{
+				$lower_size = $lower_base;
+				$lower_fract += $delta;
+				$lower_size += $lower_fract >> $lower_shift;
+				$lower_fract &= $lower_mask;
+				$lower_next += $lower_size;
+
+##printf "\t\t%8d %8d %8d\n", $lower_start, $lower_next, $lower_size;
+
+				if ($lower_size > 1)
+					{
+					$lower_mid = $lower_start;
+					if ($lower_size > 2)
+						{
+						$lower_mid += ($lower_base>>1) + (($next_fract + $delta) >> ($lower_shift+1)) - 1;
+						}
+#printf "\t\t%8d\n", $lower_mid;
+					if ($nodes[$lower_mid])
+						{
+						printf "(3) Lower_mid double target: %8d\n", $lower_mid;
+						exit(1);
+						}
+					$nodes[$lower_mid] = 1;
+					}
+
+				$next_fract += $delta;
+#				$next_fract &= ($lower_ints<<1)-1;
+				$next_fract += $delta;
+				$next_fract &= ($lower_ints<<1)-1;	
+
+				$lower_start = $lower_next;
+				}
+
+			$upper_start = $upper_next;
+			}
+
+		$lower_ints = $upper_ints;
+		$lower_base = $upper_base;
+		$lower_mask = $upper_mask;
+		$lower_shift = $upper_shift;
+
+		$upper_ints >>= 1;
+		$upper_base <<= 1;
+		$upper_mask = $upper_ints - 1;
+		$upper_shift--;
+		}
+
+#printf "%8d %8d %8d\n", $lower_base, $delta, $lower_shift;
+	my $root = 0 + ($lower_base>>1) + ($delta >> 1) - 1;
+	$nodes[$root] = 1;
+
+printf "%8d\r", $count;
+
+	for ($i=0; $i<$count; $i++)
+		{
+#		printf $nodes[$i] ? "|" : ".";
+		if (!$nodes[$i])
+			{
+			printf "\n";
+			exit(1);
+			}
+		}
+#	printf "\n";
+#print join('', @nodes), "\n";
+
+#	sleep(1) if -t STDOUT;
+
+	$count++;
+	}

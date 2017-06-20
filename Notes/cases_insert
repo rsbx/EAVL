@@ -1,0 +1,76 @@
+Insert fixup cases:
+
+
+Case 1:
+
+              P             ->             P
+              |             ->             |
+              A             ->             A
+               \            ->              \
+                *           ->               *
+
+	Dir: R				Dir: R
+	A-Bal: -	Path: -		A-Bal: R
+					S-Hgt: +1
+
+
+Case 2:
+
+              P             ->             P
+              |             ->             |
+              A             ->             A
+             / \            ->            / \
+            B   *           ->           B   *
+
+	Dir: R				Dir: R
+	A-Bal: L	Path: -		A-Bal: -
+	B-Bal: -	break		S-Hgt: -
+
+
+
+Case 3:
+
+              P             ->             P
+              |             ->             |
+              A             ->             B
+               \            ->            / \
+                B           ->           A   *
+                 \          ->
+                  *         ->
+
+	Dir: R		Rot: 1-R	Dir: R
+	A-Bal: R	Path: -1	B-Bal: -
+	B-Bal: -	break		S-Hgt: -
+
+
+Case 4:
+
+              P             ->             P
+              |             ->             |
+              A             ->             *
+             /              ->            / \
+            B               ->           B   A
+             \              ->
+              *             ->
+
+	Dir: L		Rot: 2-L	Dir: -
+	A-Bal: L	Path: -1	*-Bal: -
+	B-Bal: R	break		S-Hgt: -
+
+
+
+Case 5:
+	Same as Case 1 if B & C are be NULL.
+
+              P             ->             P
+              |             ->             |
+              A             ->             A
+             / \            ->            / \
+            B   C           ->           B   C
+                |           ->               |
+                *           ->               *
+
+	Dir: R				Dir: R
+	A-Bal: -	Path: -		A-Bal: R
+					S-Hgt: +1
+

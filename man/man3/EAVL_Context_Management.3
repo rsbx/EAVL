@@ -1,0 +1,194 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_Context_Management 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Context_Init, \%EAVLs_Context_Init, \%EAVLc_Context_Init \- initialize \%EAVL context
+.br
+\%EAVLp_Context_Associate, \%EAVLs_Context_Associate, \%EAVLc_Context_Associate \- associate an \%EAVL context with an \%EAVL tree
+.br
+\%EAVLp_Context_Disassociate, \%EAVLs_Context_Disassociate, \%EAVLc_Context_Disassociate \- disassociate an \%EAVL context from an \%EAVL tree
+
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_Context_Init(EAVLp_context_t* " context ", void* " cbdata ");"
+.br
+.BI "int EAVLp_Context_Associate(EAVLp_context_t* " context ","
+.in +5n
+.BI "EAVLp_tree_t* " tree ");"
+.in
+.br
+.BI "int EAVLp_Context_Disassociate(EAVLp_context_t* " context ");"
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_Context_Init(EAVLs_context_t* " context ","
+.in +5n
+.BI "EAVLs_cbPathe_t* " cbpathe ", void* " cbdata ");"
+.in
+.br
+.BI "int EAVLs_Context_Associate(EAVLs_context_t* " context "," 
+.in +5n 
+.BI "EAVLs_tree_t* " tree ");"
+.in
+.br
+.BI "int EAVLs_Context_Disassociate(EAVLs_context_t* " context ");"
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_Context_Init(EAVLc_context_t* " context "," 
+.in +5n
+.BI "EAVLc_cbPathe_t* " cbpathe ", void* " cbdata ");"
+.in
+.br
+.BI "int EAVLc_Context_Associate(EAVLc_context_t* " context ","
+.in +5n
+.BI "EAVLc_tree_t* " tree ");"
+.in
+.br
+.BI "int EAVLc_Context_Disassociate(EAVLc_context_t* " context ");"
+.fi
+
+.SH DESCRIPTION
+Contexts are auxiliary data structures that maintain information about recent
+\%EAVL operations, opaque data for callbacks, and make \%EAVL library
+operations more convenient to use. A context structure MUST be initialized
+before use and may then be associated, serially, with many \%EAVL trees.
+.sp
+An initialized context will always be in one of the following states and will
+transition between states due to the outcome of \%EAVL library operations:
+.TP
+Disassociated
+The context is not associated with \%EAVL tree. A just initialized \%EAVL
+data structure is in this state.
+.TP
+Set
+The context is associated with an \%EAVL tree and maintains state about a
+successful \%EAVL operation.
+.TP
+Not set
+The context is associated with an \%EAVL tree and does not maintain state
+about a successful \%EAVL operation. \%EAVL operations on the \%EAVL tree a
+context is associated with using other contexts can cause a context to become
+not set.
+.PP
+The
+.BR \%EAVLp_Context_Init "(), " \%EAVLs_Context_Init "(), and " \%EAVLc_Context_Init ()
+functions initialize an \%EAVL?_context_t structure with address
+.I \%context
+for use by the \%EAVL library.
+.sp
+The
+.BR \%EAVLp_Context_Associate "(), " \%EAVLs_Context_Associate "(), and " \%EAVLc_Context_Associate ()
+functions sets the \%EAVL tree that \%EAVL functions that take a \%EAVL context
+as a parameter will use.
+.sp
+The
+.BR \%EAVLp_Context_Disassociate "(), " \%EAVLs_Context_Disassociate "(), and " \%EAVLc_Context_Disassociate ()
+function unsets the \%EAVL tree an \%EAVL context is associated with so that the
+\%EAVL context may be freed, reinitialized, or associated with a different
+\%EAVL tree.
+
+.SH PARAMETERS
+.TP
+.I \%context
+Address of the context structure to initialize, associate, or disassociate.
+.TP
+.I \%cbpathe
+Callback function implementing an array abstraction to hold the node path
+information for \%EAVL tree types without parent information in the tree nodes.
+.TP
+.I \%cbdata
+Value to be passed to the callback functions as the
+.I \%cbdata
+parameter.
+.TP
+.I \%tree
+Address of the \%EAVL tree structure to associate with the context
+.IR \%context .
+The \%EAVL tree structure MUST already have been initialized.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned if
+.I \%context
+is already associated with a tree.
+Or if
+.B \%EAVL_CHECK_CONTEXT
+checking is available and enabled and
+.I \%context
+does not pass the context checks.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned if
+.IR \%context " or " \%cbpathe
+are NULL.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+checking is available and enabled and associated tree or
+.I \%tree
+does not pass the tree checks.
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe
+_	_	_	_
+\(*O(1)	\(*O(0)	\(*O(1)	\(*O(0)
+_	_	_	_
+.TE
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Tree_Management (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

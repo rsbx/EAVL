@@ -1,0 +1,247 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_FirstNext 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_First, \%EAVLs_First, \%EAVLc_First \- first traversal node
+.br
+\%EAVLp_Last, \%EAVLs_Last, \%EAVLc_Last \- last traversal node
+.br
+\%EAVLp_Next, \%EAVLs_Next, \%EAVLc_Next \- next traversal node
+.br
+\%EAVLp_Prev, \%EAVLs_Prev, \%EAVLc_Prev \- previous traversal node
+
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_First(EAVLp_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLp_node_t** " resultp ");"
+.in
+.BI "int EAVLp_Last(EAVLp_context_t* " context ", EAVL_dir_t " dir "," 
+.in +5n
+.BI " EAVL_order_t " order ", EAVLp_node_t** " resultp ");"
+.in 
+.BI "int EAVLp_Next(EAVLp_context_t* " context ", EAVL_dir_t " dir "," 
+.in +5n
+.BI " EAVL_order_t " order ", EAVLp_node_t** " resultp ");"
+.in 
+.BI "int EAVLp_Prev(EAVLp_context_t* " context ", EAVL_dir_t " dir "," 
+.in +5n
+.BI " EAVL_order_t " order ", EAVLp_node_t** " resultp ");"
+.in 
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_First(EAVLs_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLs_node_t** " resultp ");"
+.in
+.BI "int EAVLs_Last(EAVLs_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLs_node_t** " resultp ");"
+.in
+.BI "int EAVLs_Next(EAVLs_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLs_node_t** " resultp ");"
+.in
+.BI "int EAVLs_Prev(EAVLs_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLs_node_t** " resultp ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_First(EAVLc_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLc_node_t** " resultp ");"
+.in
+.BI "int EAVLc_Last(EAVLc_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLc_node_t** " resultp ");"
+.in
+.BI "int EAVLc_Next(EAVLc_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLc_node_t** " resultp ");"
+.in
+.BI "int EAVLc_Prev(EAVLc_context_t* " context ", EAVL_dir_t " dir ","
+.in +5n
+.BI " EAVL_order_t " order ", EAVLc_node_t** " resultp ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_First "(), " \%EAVLs_First "(), and " \%EAVLc_First ()
+functions store the address of the first node of a walk of all of the nodes
+in a tree, moving in direction
+.IR \%dir ,
+walking the tree in an
+.IR \%order
+fashion in
+.IR \%*resultp .
+.sp
+The
+.BR \%EAVLp_Last "(), " \%EAVLs_Last "(), and " \%EAVLc_Last ()
+functions store the address of the last node of a walk of all of the nodes
+in a tree, moving in direction
+.IR \%dir ,
+walking the tree in an
+.IR \%order
+fashion in
+.IR \%*resultp .
+.sp
+The
+.BR \%EAVLp_Next "(), " \%EAVLs_Next "(), and " \%EAVLc_Next ()
+functions store the address of the next node, relative to the node set in
+the context, of a walk of the nodes in a tree, moving in direction
+.IR \%dir ,
+walking the tree in an
+.IR \%order
+fashion in
+.IR \%*resultp .
+.sp
+The
+.BR \%EAVLp_Prev "(), " \%EAVLs_Prev "(), and " \%EAVLc_Prev ()
+functions store the address of the previous node, relative to the node set in
+the context, of a walk of the nodes in a tree, moving in direction
+.IR dir ,
+walking the tree in an
+.IR order
+fashion in
+.IR *resultp .
+
+.SH PARAMETERS
+.TP
+.I \%context
+Address of an associated context structure.
+.TP
+.I \%dir
+Traversal direction. Valid values are
+.BR \%EAVL_DIR_LEFT " and " \%EAVL_DIR_RIGHT.
+.TP
+.I \%order
+Traversal order. Valid values are
+.BR \%EAVL_ORDER_PRE ", " \%EAVL_ORDER_IN ", and " \%EAVL_ORDER_POST .
+.TP
+.I \%resultp
+Pointer to an \%EAVL node pointer of the appropriate type.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success.
+.TP
+.B \%EAVL_CALLBACK
+A retryable callback error occurred. The same \%EAVL operation may be attempted
+again after the reason for the callback error return is ameliorated.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned if the context is not set or if
+.B \%EAVL_CHECK_CONTEXT
+checking is available and enabled and
+.I \%context
+is in an invalid state.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned if
+.IR \%context " or " \%resultp
+are NULL or the
+.IR \%dir " or " \%order
+parameters are not valid.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+checking is available and enabled and the associated tree does not pass the
+tree checks.
+
+.SH CONTEXT STATE
+The context MUST be set for the \%EAVL?_Next() and \%EAVL?_Prev() functions
+when called.
+On function return, context state will match the following table:
+.TS
+L	C	C
+C	C	C
+L	|C	C|.
+	Operation	Other
+Result	Context	Contexts
+	_	_
+EAVL_OK	Set	Unchanged
+EAVL_NOTFOUND	Not set	Unchanged
+EAVL_CALLBACK	Unchanged	Unchanged
+	_	_
+EAVL_ERROR_CONTEXT	Unchanged	Unchanged
+EAVL_ERROR_PARAMETER	Unchanged	Unchanged
+EAVL_ERROR_TREE	Unchanged	Unchanged
+	_	_
+EAVL_ERROR*	Not set	Unchanged
+	_	_
+.TE
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe*
+_	_	_	_
+\(*O(log(n))	\(*O(0)	\(*O(1)	\(*O(log(n))
+_	_	_	_
+.TE
+Where
+.I n
+is the number of nodes in the tree.
+.sp
+Pathe usage is due to the \%EAVL?_cbPathe() callbacks. For the \%EAVL
+pTree tree type, Pathe usage is Ο(0).
+
+.SH NOTES
+Iterating over the entire only requires \*(O(n) work since each edge is (tree)
+graph is traversed only twice; once down and once up.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Find (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

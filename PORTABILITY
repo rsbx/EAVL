@@ -1,0 +1,14 @@
+* The code conforms to the C standard (C99 dialect) with the concerns noted
+	below.
+* The library has no external dependencies.
+* The test programs external dependencies are all Posix 2001 and usually part
+	of the standard library.
+
+CONCERNS
+1) All symbols are prefixed by "EAVL".  This MAY confict with future errno.h
+	macros.
+2) Subtree balance information is stored in low-order bits of the child
+	pointers (after being cast to uintptr_t).
+3) Relative comparisons of pointer values (after being cast to a uintptr_t) are
+	assumed to produce a stable total ordering.
+4) The makefile MAY be GNU make specific.

@@ -1,0 +1,42 @@
+//
+// Insert fixup
+//
+
+	prev = curr->parent;
+	while (prev)
+		{
+		node *parent = prev->parent;
+
+		dir = CHILD_DIR(prev, curr);
+
+		if (prev->baldir == BAL_NEITHER)			// Cases: 1,5
+			{
+			prev->baldir = dir;
+			}
+		else if (prev->baldir == DIR_OTHER(dir))		// Case: 2
+			{
+			prev->baldir = BAL_NEITHER;
+			break;
+			}
+		else	// prev->baldir == dir				// Cases: 3,4
+			{
+			if (curr->baldir != BAL_OTHER(dir))		// Case: 3
+				{
+				RotateSingle(dir, parent, prev, curr);
+				}
+			else						// Case: 4
+				{
+				RotateDouble(dir, parent, prev, curr, curr->child[BAL_OTHER(dir)]);
+				}
+
+			if (!parent)
+				{
+				TREE->ROOT = prev->parent;
+				}
+
+			break;
+			}
+
+		curr = prev;
+		prev = parent;
+		}

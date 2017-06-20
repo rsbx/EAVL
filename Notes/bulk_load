@@ -1,0 +1,158 @@
+
+
+/*
+** Builds an AVL tree from a sorted array of node pointers from the tree root
+** and working towards the leafs.  No recursion and no stack.
+**
+**	O(n) work
+**	O(1) extra space
+**
+** Method:
+** (1) Start with a single span of node (pointers) with an assumed extra node
+**	at the end.
+** (2) Each level of the (final) tree has twice as many spans as the adjacent
+**	level close to the root.
+** (3) Find the mid-point of each span in a level and add it to the tree
+**	before moving to the next level farther from the root.
+** (4) Calculate the mid-point of a span so that it will only be the last node
+**	in spans in levels farther away from the root.  This is the trick.
+*/
+int EAVLp_Bulk_Tree_Load(
+		EAVLp_Context_t*	Context,
+		unsigned int		count,
+		EAVLp_node_t*		nodes[]
+		)
+	{
+	unsigned int delta;
+
+	unsigned int upper_ints = 1;	/* 1<<level	*/
+	unsigned int upper_base = 1;
+	unsigned int upper_mask = 0;	/* ints-1	*/
+	unsigned int upper_shift = 0;	/* level	*/
+
+	unsigned int lower_ints = 2;
+	unsigned int lower_base;
+	unsigned int lower_mask = 1;
+	unsigned int lower_shift = 1;
+
+	unsigned int i;
+
+	if (!count)
+		{
+		return EAVL_OK;
+		}
+
+	while (upper_base <= (count+1)>>1)
+		{
+		upper_base <<= 1;
+		}
+	lower_base = upper_base >> 1;
+
+	delta = (count+1) & (upper_base-1);
+
+	i = 0 + lower_base + (delta >> lower_shift) - 1;
+	NODE_INIT(nodes[i], NULL, DIR_LEFT);
+	Context->tree->root = nodes[i];
+
+	while (upper_ints <= count>>1)
+		{
+		unsigned int upper_start = 0;
+		unsigned int upper_next = 0;
+		unsigned int upper_fract = 0;
+		unsigned int upper_size;
+		unsigned int upper_mid;
+
+		unsigned int lower_start = 0;
+		unsigned int lower_next = 0;
+		unsigned int lower_fract = 0;
+		unsigned int lower_size;
+		unsigned int lower_mid;
+
+		unsigned int next_fract = 0;
+
+		for (i=0; i<upper_ints; i++)
+			{
+			unsigned int j;
+
+			upper_size = upper_base;
+			upper_fract += delta;
+			upper_size += upper_fract >> upper_shift;
+			upper_fract &= upper_mask;
+			upper_next += upper_size;
+
+			upper_mid = upper_start + lower_base + ((lower_fract + delta) >> lower_shift) - 1;
+
+			for (j=0; j<2; j++)
+				{
+				lower_size = lower_base;
+				lower_fract += delta;
+				lower_size += lower_fract >> lower_shift;
+				lower_fract &= lower_mask;
+				lower_next += lower_size;
+
+				if (lower_size > 1)
+					{
+					lower_mid = lower_start;
+
+					if (lower_size > 2)
+						{
+						lower_mid += (lower_base>>1) + ((next_fract + delta) >> (lower_shift+1)) - 1;
+						}
+
+					NODE_INIT(nodes[lower_mid], nodes[upper_mid], j);
+					SET_CHILD(nodes[upper_mid], j, nodes[lower_mid]);
+					}
+
+				next_fract += delta;
+				/* next_fract &= (lower_ints<<1)-1; */
+				next_fract += delta;
+				next_fract &= (lower_ints<<1)-1;
+
+				lower_start = lower_next;
+				}
+
+			if (upper_size == lower_size<<1)
+				{
+				/* The 2 lower spans are the same size so the
+				** 2 subtrees will have the same height.
+				*/
+				SET_BAL(nodes[upper_mid], DIR_NEITHER);
+				}
+			else
+				{
+				/* The only for the subtrees to have different
+				** heights is for the lighter subtree (shorter
+				** span) to be "full".  The other subtree will
+				** be taller and the last row will have only 1
+				** node.  A full subtree will have 2^k-1 nodes.
+				*/
+				unsigned int smaller = MIN(upper_size>>1, lower_size);
+
+				if (smaller & (smaller-1))
+					{
+					/* smaller is not power of 2 */
+					SET_BAL(nodes[upper_mid], DIR_NEITHER);
+					}
+				else
+					{
+					SET_BAL(nodes[upper_mid], smaller == (lower_size) ? DIR_LEFT : DIR_RIGHT);
+					}
+				}
+
+			upper_start = upper_next;
+			}
+
+		upper_ints = lower_ints;	/* upper_ints <<= 1;	*/
+		upper_base = lower_base;	/* upper_base >>= 1;	*/
+		upper_mask = lower_mask;	/* upper_mask = upper_ints-1; */
+		upper_shift = lower_shift;	/* upper_shift++;	*/
+
+		lower_ints <<= 1;
+		lower_base >>= 1;
+		lower_mask = lower_ints-1;
+		lower_shift++;
+		}
+
+	return EAVL_OK;
+	}
+

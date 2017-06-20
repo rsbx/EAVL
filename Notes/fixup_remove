@@ -1,0 +1,63 @@
+
+
+
+
+	// dir === direction of removed node
+	// prev === ancestor of removed node; not NULL
+
+	while (prev)
+		{
+		EAVLp_node_t *next;
+		unsigned int bbal;
+
+		other = BAL_OTHER(dir);
+		next = prev->parent;
+
+		if (prev->baldir == dir)		// Case: 1
+			{
+			prev->baldir = BAL_NEITHER;
+			}
+		else if (prev->baldir == BAL_NEITHER)	// Case: 2
+			{
+			prev->baldir = other;
+			break;
+			}
+		else	// prev->baldir == other	// Cases: 3,4,5
+			{
+			EAVLp_node_t *B;
+
+			B = prev->child[other];
+			bbal = B->baldir;
+			if (bbal != dir)		// Cases: 3,4
+				{
+				RotateSingle(other, next, prev, B);
+				}
+			else				// Case: 5
+				{
+				RotateDouble(other, next, prev, B, B->child[dir]);
+				}
+			prev = prev->parent;
+
+			if (!next)
+				{
+				Context->tree->root = prev;
+				Context->root = prev;
+				}
+
+			if (bbal == BAL_NEITHER)	// Case: 4
+				{
+				break;
+				}
+			}
+
+		if (!next)
+			{
+			Context->tree->root = prev;
+			Context->root = prev;
+			break;
+			}
+
+		dir = CHILD_DIR(next, prev);
+		prev = next;
+		}
+

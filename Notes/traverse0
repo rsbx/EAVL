@@ -1,0 +1,64 @@
+
+	EAVL?_node_t*		node;
+	EAVL?_node_t*		prev;
+	unsinged int		interests;
+
+
+	node = root;
+	prev = root;	// Anything not NULL
+	PUSH(NULL);
+
+	while (node)
+		{
+		T0 = GET_CHILD(node, other);
+		T1 = GET_CHILD(node, dir);
+
+		if (T0 && T0 != prev && T1 != prev)
+			{
+			if (interests & MASK_PRE)
+				{
+				(*cb)(node, MASK_PRE);
+				}
+
+			PUSH(node);
+			prev = node;
+			node = T0;
+			continue;
+			}
+
+		if (T1 != prev)
+			{
+			if (interests & MASK_IN)
+				{
+				(*cb)(node, interests & (
+							MASK_IN
+							| ((T0) ? 0 : MASK_PRE)
+							| ((T1) ? 0 : MASK_POST)
+							)
+						);
+				}
+			}
+
+		if (T1 && T1 != prev)
+			{
+			PUSH(node);
+			prev = node;
+			node = T;
+			continue;
+			}
+
+		if (T1 && T1 == prev)
+			{
+			if (interests & MASK_POST)
+				{
+				(*cb)(node, MASK_POST);
+				}
+			}
+
+		prev = node;
+		node = POP();
+		}
+
+
+
+

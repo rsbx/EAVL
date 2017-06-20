@@ -1,0 +1,119 @@
+'\" 
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_cbFixup 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_cbFixup, \%EAVLs_cbFixup, \%EAVLc_cbFixup \- fixup callback
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int (EAVLp_cbFixup)(EAVLp_node_t* " node ", EAVLp_node_t* " childL ","
+.in +5n
+.BI "EAVLp_node_t " childR ", void* " cbdata ");"
+.in
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int (EAVLs_cbFixup)(EAVLs_node_t* " node ", EAVLs_node_t* " childL "," 
+.in +5n 
+.BI "EAVLs_node_t " childR ", void* " cbdata ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int (EAVLc_cbFixup)(EAVLc_node_t* " node ", EAVLc_node_t* " childL "," 
+.in +5n 
+.BI "EAVLc_node_t " childR ", void* " cbdata ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_cbFixup "(), " \%EAVLs_cbFixup "(), and " \%EAVLc_cbFixup ()
+callback functions "fixup" the calling code managed data of a new node or a
+node that has potentially had one or both subtrees modified either by an \%EAVL
+function call or by fixup callback invocation.
+.sp
+This callback function type is the counterpart of the
+.BR \%EAVL_cbVerify (7)
+callback function type.
+
+.SH PARAMETERS
+.TP
+.I \%node
+Pointer to the node to fixup.
+.TP
+.I \%childL
+Pointer to the root of the left subtree of
+.IR \%node .
+.TP
+.I \%childR
+Pointer to the root of the right subtree of
+.IR \%node .
+.TP
+.I \%cbdata
+Value of the
+.I \%cbdata
+parameter to one of the
+.BR \%EAVL_Context_Init (3)
+functions.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_CB_OK
+Success.
+.TP
+.B \%EAVL_CB_FINISHED
+Success and further fixup callback invocations are unnecessary as part of the
+current \%EAVL function call.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Context_Management (3),
+.BR \%container_of (7),
+.BR \%EAVL (7),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbDup (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_cbRelease (7),
+.BR \%EAVL_cbVerify (7)
+.ad
+.hy 1

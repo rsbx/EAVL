@@ -1,0 +1,127 @@
+
+11	PRE	IN	POST		PRE	    IN		POST
+
+10	PRE	IN			PRE	    IN+POST
+
+01		IN	POST			PRE+IN		POST
+
+00		IN				PRE+IN+POST
+
+
+
+
+#define TRAVERSECB(NODE, COVER, TTCB, DATA, RES)			\
+	do								\
+		{							\
+		if ((TTCB))						\
+			{						\
+			int		TTres;				\
+									\
+			TTres = (*(TTCB))((NODE), (COVER), (DATA));	\
+			if (TTres != EAVL_OK)				\
+				{					\
+				(TTCB) = NULL;				\
+				}					\
+			if (TTres != EAVL_OK && TTres != EAVL_FINISHED)	\
+				{					\
+				(RES) = EAVL_ERROR_CALLBACK;		\
+				}					\
+			}						\
+		} while (0)
+
+
+int PUBLIC(Tree_Traverse)(
+		EAVL?_context_t*	context,
+		EAVL_dir_t		dir;
+		EAVL_order_mask_t	interests;
+		EAVL?_cbTraverse_t	callback,
+		void*			cbdata
+		)
+	{
+	EAVL?_node_t*		node;
+	EAVL?_node_t*		prev;
+	EAVL_dir_t		other;
+	EAVL_order_mask_t	coverage;
+	int			result = EAVL_OK;
+
+	CHECK_PARAM_NON_NULL(context);
+	CHECK_PARAM_NON_NULL(callback);
+	CHECK_PARAM_DIR(dir);
+
+	if (!interests || interests != (interests & (ORDER_MASK_PRE | ORDER_MASK_IN | ORDER_MASK_POST)))
+		{
+		RESULT(EAVL_ERROR_PARAMETER);
+		}
+
+	CHECK_STD_PRE(context, context->tree, 0);
+
+	node = context->tree->root;
+	prev = node;			// Anything not NULL
+	PUSH(NULL);
+	other = DIR_OTHER(dir);
+	cbdata = context->common.cbdata;
+
+	while (callback && node)
+		{
+		EAVL?_node_t*		T0 = GET_CHILD(node, other);
+		EAVL?_node_t*		T1 = GET_CHILD(node, dir);
+
+		if (T1 == prev)
+			{
+			if (interests & ORDER_MASK_POST)
+				{
+				TRAVERSECB(node, ORDER_MASK_POST, callback, cbdata, result);
+				}
+
+			prev = node;
+			node = POP();
+
+			continue;
+			}
+
+		if (T0 && T0 != prev)
+			{
+			if (interests & ORDER_MASK_PRE)
+				{
+				TRAVERSECB(node, ORDER_MASK_PRE, callback, cbdata, result);
+				}
+
+			prev = node;
+			PUSH(node);
+			node = T0;
+
+			continue;
+			}
+
+		coverage = interests
+				&
+					(
+					ORDER_MASK_IN
+					| ((T0) ? 0 : ORDER_MASK_PRE)
+					| ((T1) ? 0 : ORDER_MASK_POST)
+					)
+				;
+		if (coverage)
+			{
+			TRAVERSECB(node, coverage, callback, cbdata, result);
+			}
+
+		if (T1)
+			{
+			prev = node;
+			PUSH(node);
+			node = T1;
+
+			continue;
+			}
+
+		prev = node;
+		node = POP();
+
+		/* continue */
+		}
+
+	CHECK_STD_POST(context->tree, context);
+
+	RETURN;
+	}

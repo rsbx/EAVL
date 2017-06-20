@@ -1,0 +1,166 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_Load 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Load, \%EAVLs_Load, \%EAVLc_Load \- \%EAVL tree bulk load
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_Load(EAVLp_context_t* " context ", unsigned int " count ","
+.in +5n
+.BI "EAVLp_node_t** " nodes ");"
+.in
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_Load(EAVLs_context_t* " context ", unsigned int " count ","
+.in +5n
+.BI "EAVLs_node_t** " nodes ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_Load(EAVLc_context_t* " context ", unsigned int " count ","
+.in +5n
+.BI "EAVLc_node_t** " nodes ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_Load "(), " \%EAVLs_Load "(), and " \%EAVLc_Load ()
+functions load a sorted array of nodes into an empty \%EAVL tree.
+
+.SH PARAMETERS
+.TP
+.I \%context
+Address of an associated context structure.
+.TP
+.I \%count
+The number of nodes in the list to load.
+.TP
+.I \%nodes
+A sorted array of node pointers to the nodes to load into the tree. The node
+pointers MUST have the nodes arranged from LEFT to RIGHT with no equivalent
+nodes, as defined by the tree compare callback. Node addresses MUST NOT have
+the low order bit set. The
+.I \%nodes
+array is modified and may be freed or reused when the function returns.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success.
+.TP
+.B \%EAVL_ERROR_ALIGNMENT
+Returned if
+.B \%EAVL_CHECK_PARAMETER
+checking is available and enabled and a node does not meet the alignment
+requirements.
+.TP
+.B \%EAVL_ERROR_COMPARE
+Returned if
+.B \%EAVL_CHECK_ORDER
+checking is available and enabled and the node array is not properly sorted.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned if
+.B \%EAVL_CHECK_CONTEXT
+checking is available and enabled and
+.I \%context
+is in an invalid state.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned if
+.IR \%context " or " \%nodes
+are NULL or if the tree is not empty.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+checking is available and enabled and the associated tree does not pass the
+tree checks.
+
+.SH CONTEXT STATE
+The context MUST associated with an \%EAVL tree when these functions are called.
+On function return, context state will match the following table:
+.TS
+L	C	C
+C	C	C
+L	|C	C|.
+	Operation	Other
+Result	Context	Contexts
+	_	_
+EAVL_OK	Not set	Not set
+	_	_
+EAVL_ERROR_ALIGNMENT	Unchanged	Unchanged
+EAVL_ERROR_COMPARE	Unchanged	Unchanged
+EAVL_ERROR_CONTEXT	Unchanged	Unchanged
+EAVL_ERROR_PARAMETER	Unchanged	Unchanged
+EAVL_ERROR_TREE	Unchanged	Unchanged
+	_	_
+EAVL_ERROR*	Not set	Not set
+	_	_
+.TE
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe
+_	_	_	_
+\(*O(n)	\(*O(0)	\(*O(1)	\(*O(0)
+_	_	_	_
+.TE
+Where
+.I n
+is the node count.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Clear (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

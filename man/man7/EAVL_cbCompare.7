@@ -1,0 +1,183 @@
+'\" 
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_cbCompare 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_cbCompare, \%EAVLs_cbCompare, \%EAVLc_cbCompare \- comparison callback
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "EAVL_dir_t (EAVLp_cbCompare)(void* " ref_value ", EAVLp_node_t* " ref_node ","
+.in +5n
+.BI "EAVLp_node_t " node ", void* " cbdata ");"
+.in
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "EAVL_dir_t (EAVLs_cbCompare)(void* " ref_value ", EAVLs_node_t* " ref_node "," 
+.in +5n 
+.BI "EAVLs_node_t " node ", void* " cbdata ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "EAVL_dir_t (EAVLc_cbCompare)(void* " ref_value ", EAVLc_node_t* " ref_node "," 
+.in +5n 
+.BI "EAVLc_node_t " node ", void* " cbdata ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_cbCompare "(), " \%EAVLs_cbCompare "(), and " \%EAVLc_cbCompare ()
+callback functions compare an \%EAVL node
+.I \%node
+to a reference value
+.I \%ref_value
+or a reference node
+.I \%ref_node
+and return a value indicating if the reference value is equivalent to
+.I \%node
+or it's position relative to
+.IR \%node .
+
+.SH PARAMETERS
+.TP
+.I \%ref_value
+Pointer to a value to compare
+.I \%node
+to.
+.TP
+.I \%ref_node
+Pointer to a node to compare
+.I \%node
+to.
+.TP
+.I \%node
+Tree node to compare to reference(s).
+.TP
+.I \%cbdata
+Value of the
+.I \%cbdata
+parameter to one of the
+.BR \%EAVL_Context_Init (3)
+functions.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_CMP_LEFT
+The reference value is left of
+.IR \%node .
+.TP
+.B \%EAVL_CMP_RIGHT
+The reference value is right of
+.IR \%node .
+.TP
+.B \%EAVL_CMP_SAME
+The reference value is equivalent to
+.IR \%node .
+
+.SH EXAMPLE
+The following program fragment is a simple a comparison callback.
+.SS Program fragment
+.nf
+#include "EAVL_pTree.h"
+#include "container_of.h"
+
+struct appnode
+	{
+	unsigned int	val;
+	EAVLp_node_t	eavlnode;
+	};
+ ...
+
+EAVL_dir_t Node_CMP(
+                void *ref_value,
+                EAVLp_node_t *ref_node,
+                EAVLp_node_t *node,
+                void *data
+                )
+        {
+        unsigned int *valp = &container_of(
+			node,
+			struct appnode,
+			eavlnode
+			)\->val
+			;
+        unsigned int *refp = (unsigned int *)ref_value;
+
+        if (ref_node)
+                {
+                refp = &container_of(
+				ref_node,
+				struct appnode,
+				eavlnode
+				)\->val
+				;
+                }
+
+        return (*valp == *refp)
+			? EAVL_CMP_SAME
+			: (*valp < *refp)
+				? EAVL_CMP_LEFT
+				: EAVL_CMP_RIGHT
+			;
+        }
+ ...
+
+.fi
+
+.SH NOTES
+LEFT and RIGHT are abstractions of "less than" and "greater than" that better
+reflect the structure of a binary tree.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Context_Management (3),
+.BR \%container_of (7),
+.BR \%EAVL (7),
+.BR \%EAVL_cbDup (7),
+.BR \%EAVL_cbFixup (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_cbRelease (7),
+.BR \%EAVL_cbVerify (7)
+.ad
+.hy 1

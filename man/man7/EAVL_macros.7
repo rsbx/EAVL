@@ -1,0 +1,152 @@
+'\" 
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_macros 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_CONTEXT_TREE, \%EAVLs_CONTEXT_TREE, \%EAVLc_CONTEXT_TREE \- associated tree
+.br
+\%EAVLp_GET_BAL, \%EAVLs_GET_BAL, \%EAVLc_GET_BAL \- node balance
+.br
+\%EAVLp_GET_CHILD, \%EAVLs_GET_CHILD, \%EAVLc_GET_CHILD \- node child
+.br
+\%EAVLp_TREE_ROOT, \%EAVLs_TREE_ROOT, \%EAVLc_TREE_ROOT \- tree root
+.br
+\%EAVLp_GET_PARENT \- node parent
+.br
+\%EAVLc_GET_REFS \- node references
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "EAVLp_tree_t* EAVLp_CONTEXT_TREE(" context ");"
+.br
+.BI "EAVL_dir_t EAVLp_GET_BAL(" node ");"
+.br
+.BI "EAVLp_node_t* EAVLp_GET_CHILD(" node ", EAVL_dir_t " dir ");"
+.br
+.BI "EAVLp_node_t* EAVLp_GET_PARENT(" node ");"
+.br
+.BI "EAVLp_node_t* EAVLp_TREE_ROOT(" tree ");"
+.in
+.sp 2
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "EAVLs_tree_t* EAVLs_CONTEXT_TREE(" context ");"
+.br
+.BI "EAVL_dir_t EAVLs_GET_BAL(" node ");"
+.br
+.BI "EAVLs_node_t* EAVLs_GET_CHILD(" node ", EAVL_dir_t " dir ");"
+.br
+.BI "EAVLs_node_t* EAVLs_TREE_ROOT(" tree ");"
+.sp 2
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "EAVLc_tree_t* EAVLc_CONTEXT_TREE(" context ");"
+.br
+.BI "EAVL_dir_t EAVLc_GET_BAL(" node ");"
+.br
+.BI "EAVLc_node_t* EAVLc_GET_CHILD(" node ", EAVL_dir_t " dir ");"
+.br
+.BI "unsigned int EAVLc_GET_REFS(" node ");"
+.br
+.BI "EAVLc_node_t* EAVLc_TREE_ROOT(" tree ");"
+.fi
+
+.SH DESCRIPTION
+These C macros are a safe and supported method for the calling code to inspect
+aspects of the \%EAVL data structures. Calling code SHOULD NOT access the \%EAVL
+data structures directly and MUST NOT modify the data structures except via
+\%EAVL library function calls.
+
+.SH PARAMETERS
+.TP
+.I \%context
+Pointer to an associated context structure.
+.TP
+.I \%node
+Pointer to the node of interest.
+.TP
+.I \% dir
+Which child pointer to get. Valid values are
+.BR \%EAVL_DIR_LEFT " and " \%EAVL_DIR_RIGHT .
+.TP
+.I \%tree
+Pointer to an initialized \%EAVL tree structure.
+
+.SH RETURN VALUE
+The
+.BR \%EAVLp_CONTEXT_TREE "(), " \%EAVLs_CONTEXT_TREE "(), and " \%EAVLc_CONTEXT_TREE "()"
+macros return a pointer the \%EAVL tree structure associated with
+.IR \%context
+or NULL if the context is not associated with a tree.
+.sp
+The
+.BR \%EAVLp_GET_BAL "(), " \%EAVLs_GET_BAL "(), and " \%EAVLc_GET_BAL "()"
+macros return the AVL balance information of
+.IR \%node .
+.sp
+The
+.BR \%EAVLp_GET_CHILD "(), " \%EAVLs_GET_CHILD "(), and " \%EAVLc_GET_CHILD "()"
+macros return a pointer to the specified child of
+.IR \%node
+or NULL if the node does not have the specified child.
+.sp
+The
+.BR \%EAVLp_TREE_ROOT "(), " \%EAVLs_TREE_ROOT "(), and " \%EAVLc_TREE_ROOT "()"
+macros return a pointer to the root node of initialized \%EAVL
+.IR \%tree .
+.sp
+The
+.BR \%EAVLp_GET_PARENT ()
+macro returns a pointer to the parent node of
+.IR \%node .
+.sp
+.BR \%EAVLc_GET_REFS ()
+macro returns the reference count of
+.IR \%node .
+Note that the reference count of a node is NOT the number of \%EAVL trees the
+node is a member of; it is the number of direct refences to a node.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Context_Management (3),
+.BR \%EAVL_Tree_Management (3),
+.BR \%container_of (7),
+.BR \%EAVL (7),
+.ad
+.hy 1

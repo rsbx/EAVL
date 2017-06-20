@@ -1,0 +1,48 @@
+* Code cleanup.
+
+* Tests.
+
+* Find an example use of the cTree tree type.
+
+* Makefile install target
+
+
+DONE * Document all possible remove fixup cases.
+
+DONE * Document all possible insert fixup cases.
+
+DONE * Verify all remove fixup cases handled.
+
+DONE * Verify all insert fixup cases handled.
+
+DONE * Verify SWAP_NODES() handles the case where a node is a direct child of the other.
+
+DONE * Simplify fixup loops with a temporary/dummy root node.
+
+DONE * Implement intended Context semantics.
+
+DONE * Move balance information into child pointer low order bits.
+
+DONE * Minimize repeated use of GET_CHILD(), CHILD_DIR(), and DIR_OTHER() macros.
+
+DONE * Investigate stack alternatives for Bulk_Tree_Load().
+
+DONE * Change the node structure to use abstract types instead of pointers and add PUBLIC accessors.
+
+DONE * Refactor Tree_Load so that all tree types can use the same code.
+
+DONE * CONTEXT_SET, CONTEXT_RESET, & CONTEXT_RESET_ALL need to check if context checks are available and enabled.
+
+DONE * FOREIGN(context_, insert) and FOREIGN(context_, remove) should be void functions.
+
+DONE * Implement sTree and cTree tree types.
+
+DONE * Enhance and cleanup callback protocols.
+
+DONE * Documentation.
+
+
+REJECTED * Return callback error results to calling code.
+	Callbacks already have a means to returing more specific error codes in
+	the callback data.
+

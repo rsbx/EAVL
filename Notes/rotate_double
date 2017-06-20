@@ -1,0 +1,52 @@
+//
+// Double Rotation
+//
+
+void RotateDouble(unsigned int dir, node *P, node *A, node *B, node *C)
+	{
+	node *T;
+	unsigned int other = DIR_OTHER(dir);
+
+	T = C->child[dir];
+	B->child[other] = T;
+	if (T)
+		{
+		T->parent = B;
+		}
+
+	C->child[dir] = B;
+	B->parent = C;
+
+	T = C->child[other];
+	A->child[dir] = T;
+	if (T)
+		{
+		T->parent = A;
+		}
+
+	C->child[other] = A;
+	A->parent = C;
+
+	C->parent = P;
+	if (P)
+		{
+		P->child[CHILD_DIR(P, A)] = C;
+		}
+
+	if (C->baldir == dir)
+		{
+		A->baldir = other;
+		B->baldir = BAL_NEITHER;
+		}
+	else if (C->baldir == BAL_NEITHER)
+		{
+		A->baldir = BAL_NEITHER;
+		B->baldir = BAL_NEITHER;
+		}
+	else    // C->baldir == other
+		{
+		A->baldir = BAL_NEITHER;
+		B->baldir = dir;
+		}
+	C->baldir = BAL_NEITHER;
+	}

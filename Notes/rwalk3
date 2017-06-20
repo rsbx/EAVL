@@ -1,0 +1,169 @@
+
+
+CB:
+	PRE
+		(!*start || cmp == SAME) && ...
+
+	IN
+		(!*start || cmp == SAME) && ...
+
+	POST
+		(!*start || cmp == SAME) && ...
+
+WALK:
+	OTHER
+		(!*start || (cmp == SAME && MASK_PRE)) && ...
+			*start == NULL
+		(*start && cmp == OTHER) && ...
+			*start = *start
+
+	DIR
+		(!*start || (cmp == SAME && (MASK_PRE | MASK_IN))) && ...
+			*start == NULL
+		(*start && cmp == DIR) && ...
+			*start = *start
+
+
+
+
+#define CALLBACK(NODE, COVER, CBP, CBDATA, LIMITER, RES)		\
+	do								\
+		{							\
+		if ((*CBP))						\
+			{						\
+			int		CBres;				\
+									\
+			CBres = (**(CBP))((NODE), (COVER), (CBDATA));	\
+			switch (CBres)					\
+				{					\
+				case EAVL_OK:				\
+					break;				\
+									\
+				case EAVL_FINISHED:			\
+					(*CBP) = NULL;			\
+					break;				\
+									\
+				case EAVL_LIMIT:			\
+					(LIMITER) = 1;			\
+					break;				\
+									\
+				default:				\
+					(*CBP) = NULL;			\
+					(RES) = CBres;			\
+				}					\
+			}						\
+		} while (0)
+
+
+#define RWALK3(NODE, DIR, WANT, START, COMPARE, CB, CBDATA, RES)	\
+	do								\
+		{							\
+		void*		RW3_start = (START);			\
+		cb_t*		RW3_cb = (CB);				\
+									\
+		(RES) = rwalk3(						\
+				(NODE),					\
+				(DIR),					\
+				(WANT),					\
+				&RW3_start,				\
+				(COMPARE),				\
+				&RW3_cb,				\
+				(CBDATA)				\
+				);					\
+		} while (0)
+
+
+int rwalk3(
+		node_t*			node,
+		dir_t			dir,
+		order_mask_t		want,
+		void**			start,
+		cbCompare_t*		compare,
+		cb_t**			cbp,
+		void*			cbdata
+		)
+	{
+	node_t*			T0;
+	node_t*			T1;
+	dir_t			cmp = CMP_SAME;
+	int			limiter = 0;
+	int			error = 0;
+
+	if (!node || !*cbp || !(want & (MASK_PRE | MASK_IN | MASK_POST)))
+		{
+		return 0;
+		}
+
+	if (compare && *start)
+		{
+		cmp = (*compare)(*start, NULL, node, cbdata);
+		}
+
+	T0 = GET_CHILD(node, OTHER(dir));
+	T1 = GET_CHILD(node, dir);
+
+	if (!error && *cbp && T0 && (want & MASK_PRE) && (!*start || (cmp == CMP_SAME)))
+		{
+		CALLBACK(node, MASK_PRE, cbp, cbdata, limiter, error);
+		*start = NULL;
+		cmp = EAVL_CMP_SAME;
+		}
+
+	if (!error && *cbp && !limiter && T0)
+		{
+		if (!*start || ((cmp == CMP_SAME) && (want & MASK_PRE)))
+			{
+			error = rwalk3(T0, dir, want, start, NULL, cbp, cbdata);
+			}
+		else if (cmp == dir)
+			{
+			error = rwalk3(T0, dir, want, start, compare, cbp, cbdata);
+			}
+		}
+
+	if (!error && *cbp
+			&& (
+				(want & MASK_IN)
+				|| (!T0 && (want & MASK_PRE))
+				|| (!T1 && (want & MASK_POST))
+				)
+			&& (!*start || (cmp == CMP_SAME))
+			)
+		{
+		CALLBACK(
+				node,
+				want & (
+					MASK_IN
+					| ((T0) ? 0u : MASK_PRE)
+					| ((T1) ? 0u : MASK_POST)
+					),
+				cbp,
+				cbdata,
+				limiter,
+				error
+				);
+		*start = NULL;
+		cmp = EAVL_CMP_SAME;
+		}
+
+	if (!error && *cbp && !limiter && T1)
+		{
+		if (!*start || ((cmp == CMP_SAME) && (want & (MASK_PRE | MASK_IN))))
+			{
+			error = rwalk3(T1, dir, want, start, NULL, cbp, cbdata);
+			}
+		else if (cmp == OTHER(dir))
+			{
+			error = rwalk3(T1, dir, want, start, compare, cbp, cbdata);
+			}
+		}
+
+	if (!error && *cbp && T1 && (want & MASK_POST) && (!*start || (cmp == CMP_SAME)))
+		{
+		CALLBACK(node, MASK_POST, cbp, cbdata, limiter, error);
+		*start = NULL;
+		cmp = EAVL_CMP_SAME;
+		}
+
+	return error;
+	}

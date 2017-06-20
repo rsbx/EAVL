@@ -1,0 +1,125 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVL \- Embedded AVL tree data structures library
+
+.SH DESCRIPTION
+The embedded AVL tree data structure library is a flexible and efficient
+library defining and managing the relationships between data structures
+implementing several distinct AVL tree types.
+
+.SS Features
+.TP
+.B *
+\%EAVL data structures may be embedded in calling code managed data structures.
+.TP
+.B *
+The contents of the tree nodes is entirely managed by the calling code.
+.TP
+.B *
+A rich set of functions for manipulating and managing
+the AVL tree.
+.TP
+.B *
+A complete set of manual pages.
+.TP
+.B *
+A comprehensive set of granular validation checks can be made available at
+compilation time and enabled/disabled at runtime.
+
+.SS Tree Types
+.TP
+.RB """" p """ (parent)"
+This \%EAVL tree type is distinguished by not requiring the overhead of an
+.BR \%EAVL_cbPathe (7)
+callback.
+.TP
+.RB """" s """ (small)"
+This \%EAVL tree type is distinguished by having the smallest node size.
+.TP
+.RB """" c """ (copy on write)"
+This \%EAVL tree  type is distinguished by the ability to "copy" trees with
+\(*O(1) work upfront and duplicating nodes later as needed.
+
+.SS Checks
+Validation checks are provided to check important aspects of the \%EAVL data
+structures and as an aid to the calling code programmer to facilitate proper
+usage of the \%EAVL library.
+.TP
+.B \%EAVL_CHECK_CALLBACK
+Checks that callback functions are following the proper protocol for the
+callback type.
+.TP
+.B \%EAVL_CHECK_CONTEXT
+Checks if the calling code and the \%EAVL library are following the context use
+protocol properly.
+.TP
+.B \%EAVL_CHECK_ORDER
+Checks if the array of node pointers is sorted properly.
+.TP
+.B \%EAVL_CHECK_PARAM
+Checks function parameters.
+.TP
+.B \%EAVL_CHECK_TREE
+Checks that tree is a valid AVL tree and that the
+.BR \%EAVL_cbVerify (7)
+callback, if provided, does not indicate an error.
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Clear (3),
+.BR \%EAVL_Context_Management (3),
+.BR \%EAVL_Find (3),
+.BR \%EAVL_FirstNext (3),
+.BR \%EAVL_Fixup (3),
+.BR \%EAVL_Insert (3),
+.BR \%EAVL_Load (3),
+.BR \%EAVL_Remove (3),
+.BR \%EAVL_Split (3),
+.BR \%EAVL_Tree_Management (3),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbDup (7),
+.BR \%EAVL_cbFixup (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_cbRelease (7),
+.BR \%EAVL_cbVerify (7),
+.BR \%EAVL_checks (7),
+.BR \%EAVL_macros (7)
+.ad
+.hy 1

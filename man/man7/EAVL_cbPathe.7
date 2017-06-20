@@ -1,0 +1,232 @@
+'\" 
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_cbPathe 7 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLs_cbPathe, \%EAVLc_cbPathe \- path element array callback
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "EAVLs_pathelement_t* (EAVLs_cbPathe)(unsigned int " index ","
+.in +5n
+.BI "unsigned int " param ", void* " cbdata ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "EAVLc_pathelement_t* (EAVLc_cbPathe)(unsigned int " index ","
+.in +5n
+.BI "unsigned int " param ", void* " cbdata ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLs_cbPathe "() and " \%EAVLc_cbDup ()
+callback functions implement an array abstraction for holding node path
+information for the \%EAVL tree types without parent information in the tree
+nodes. The array indexing is zero relative.
+.BR \%EAVLs_cbPathe "() and " \%EAVLc_cbPathe ()
+implementations effect one of 3 operations depending on the values of
+.IR \%index " and " \%param .
+.sp
+If
+.I \%index
+is -1u, then the number of entries in the array abstraction may be
+truncated to the value of
+.IR \%param.
+This operation always returns NULL.
+.sp
+If
+.I \%index
+is not -1u and
+.I \%param
+is not zero, then the entries at indexes
+.I \%index
+and higher are shifted down by one. This operation always returns NULL.
+.sp
+Otherwise, the address of the \%EAVLs_pathelement_t or \%EAVLc_pathelement_t at
+index
+.I \%index
+is returned. The memory address for a particular index value MUST remain
+stable at least until the next call to the callback and the value at the
+index MUST be maintained if the address is changed.
+.sp
+
+.SH PARAMETERS
+.TP
+.I \%index
+See
+.BR DESCRIPTION .
+.TP
+.I \%param
+See
+.BR DESCRIPTION .
+.TP
+.I \%cbdata
+Value of the
+.I \%cbdata
+parameter to one of the
+.BR \%EAVL_Context_Init (3)
+functions.
+
+.SH RETURN VALUE
+The
+.BR \%EAVLs_cbPathe "() and " \%EAVLc_cbPathe ()
+callbacks return a pointer to an \%EAVLs_pathelement_t or \%EAVLc_pathelement_t, or
+NULL depending the callback parameters and callback operation success.
+
+.SH NOTES
+The \%EAVL code may SEGFAULT if the index address request operation returns NULL
+for an index that has already returned non NULL since the last index truncate
+operation.
+
+.SH EXAMPLE
+The following program fragment is a very simple 
+.BR \%realloc (3)
+based implementation.
+
+.SS Program fragment
+.nf
+#include "EAVL_sTree.h"
+#include <stdlib.h>
+#include <string.h>
+ ...
+
+#define PATHE_STORE_INITIAL	(4)
+
+typedef struct
+	{
+	EAVLs_pathelement_t*	elements;
+	unsigned int		count;
+	} pathestore_t;
+
+typedef struct
+	{
+	pathestore_t*		pathestore;
+	} cbData_t;
+ ...
+
+EAVLs_pathelement_t* cb_pathe(
+		unsigned int		index,
+		unsigned int		param,
+		void*			data
+		)
+	{
+	pathestore_t*		pathestore;
+
+	pathestore = ((cbData_t*)(data))->pathestore;
+
+	if (index == -1u)	/* truncate */
+		{
+		unsigned int		count = (PATHE_STORE_INITIAL);
+		void*			temp;
+
+		while (count < param)
+			{
+			count <<= 1;
+			}
+
+		temp = realloc(
+				pathestore->elements,
+				sizeof(EAVLs_pathelement_t)*count
+				);
+		if (temp)
+			{
+			pathestore->elements = (EAVLs_pathelement_t*)temp;
+			pathestore->count = count;
+			}
+
+		return NULL;
+		}
+
+	if (param != 0)		/* shift down 1 */
+		{
+		memmove(
+				&pathestore->elements[index-1],
+				&pathestore->elements[index],
+				sizeof(EAVLs_pathelement_t)*(param-index+1)
+				);
+
+		return NULL;
+		}
+
+	if (index >= pathestore->count)
+		{
+		unsigned int		count = pathestore->count;
+		void*			temp;
+
+		while (index >= count)
+			{
+			count <<= 1;
+			}
+
+		temp = realloc(
+				pathestore->elements,
+				sizeof(EAVLs_pathelement_t)*count
+				);
+		if (!temp)
+			{
+			/* WARNING: This MAY cause a SEGFAULT! */
+			return NULL;
+			}
+
+		pathestore->elements = (EAVLs_pathelement_t*)temp;
+		pathestore->count = count;
+		}
+
+	return &pathestore->elements[index];
+	}
+ ...
+
+.fi
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_Context_Management (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbDup (7),
+.BR \%EAVL_cbFixup (7),
+.BR \%EAVL_cbRelase (7),
+.BR \%EAVL_cbVerify (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

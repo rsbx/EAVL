@@ -1,0 +1,35 @@
+
+A context is conformant provided that all of the following hold true:
+	I-1: linked ==> recent
+	I-2: (linked && recent) ==> intree
+
+A context is valid provided that it is conformat and all of the following hold
+true:
+	I-3: required ==> linked
+
+
+
+				conform	valid
+rcnt	linked	intree	cnfrm	fails	fails
+0	0	(0)	1		I-3		E-2
+0	0	(0)	1		I-3		E-2
+0	1	(0)	0	I-1		E-1
+0	1	(0)	0	I-1		E-1
+1	0		1		I-3		E-2
+1	0		1		I-3		E-2
+1	1	0	0	I-2		E-1
+1	1	1	1	
+
+
+intree = 0
+
+set linked
+
+if (recent && linked)		set intree
+
+if (linked && !intree)		E-1		implies library code error
+
+if (required && !linked)	E-2		implies tree contents change
+
+
+

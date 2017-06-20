@@ -1,0 +1,147 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_Fixup 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Fixup, \%EAVLs_Fixup, \%EAVLc_Fixup \- empty an \%EAVL tree
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_Fixup(EAVLp_context_t* " context ");"
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_Fixup(EAVLs_context_t* " context ");"
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_Fixup(EAVLc_context_t* " context ");"
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_Fixup "(), " \%EAVLs_Fixup "(), and " \%EAVLc_Fixup ()
+functions call the
+.BR \%EAVL_cbFixup (7)
+callback for each node from the node set in the context to the root node,
+inclusive.
+
+.SH PARAMETERS
+.TP
+.I \%context
+Address of an associated and set context structure.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success.
+.TP
+.B \%EAVL_CALLBACK
+A retryable callback error occurred. The same \%EAVL operation may be attempted
+again after the reason for the callback error return is ameliorated.
+.TP
+.B \%EAVL_ERROR_CALLBACK
+A non retryable callback error occurred.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned if the context is not set or if
+.B \%EAVL_CHECK_CONTEXT
+checking is available and enabled and
+.I \%context
+is in an invalid state.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned if
+.IR \%context
+is NULL.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+checking is available and enabled and the associated tree does not pass the
+tree checks.
+
+.SH CONTEXT STATE
+The context MUST be set when these functions are called.
+On function return, context state will match the following table:
+.TS
+L	C	C
+C	C	C
+L	|C	C|.
+	Operation	Other
+Result	Context	Contexts
+	_	_
+EAVL_OK	Set	Unchanged
+EAVL_CALLBACK	Unchanged	Unchanged
+	_	_
+EAVL_ERROR_CALLBACK	Unchanged	Unchanged
+EAVL_ERROR_CONTEXT	Unchanged	Unchanged
+EAVL_ERROR_PARAMETER	Unchanged	Unchanged
+EAVL_ERROR_TREE	Unchanged	Unchanged
+	_	_
+EAVL_ERROR*	Unchanged	Unchanged
+	_	_
+.TE
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe*
+_	_	_	_
+\(*O(log(n))	\(*O(0)	\(*O(1)	\(*O(log(n))
+_	_	_	_
+.TE
+Where
+.I n
+is the number of nodes in the tree.
+.sp
+Pathe usage is due to the \%EAVL?_cbPathe() callbacks. For the \%EAVL
+pTree tree type, Pathe usage is Ο(0).
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL (7),
+.BR \%EAVL_cbFixup (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

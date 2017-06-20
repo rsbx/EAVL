@@ -1,0 +1,36 @@
+//
+// Single Rotation
+//
+
+void RotateSingle(unsigned int dir, node *P, node *A, node *B)
+	{
+	node *T;
+	unsigned int other = DIR_OTHER(dir);
+
+	T = B->child[other];
+	A->child[dir] = T;
+	if (T)
+		{
+		T->parent = A;
+		}
+
+	B->child[other] = A;
+	A->parent = B;
+
+	B->parent = P;
+	if (P)
+		{
+		P->child[CHILD_DIR(P, A)] = B;
+		}
+
+	if (B->baldir == BAL_NEITHER)
+		{
+		A->baldir = dir;
+		B->baldir = other;
+		}
+	else
+		{
+		A->baldir = BAL_NEITHER;
+		B->baldir = BAL_NEITHER;
+		}
+	}

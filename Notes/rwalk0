@@ -1,0 +1,41 @@
+
+int rwalk0(node_t* node, dir_t dir, order_mask_t want, cb_t* cb, void* cbdata)
+	{
+	int			error = 0;
+
+	if (!node || !(want & (MASK_PRE | MASK_IN | MASK_POST)))
+		{
+		return 0;
+		}
+
+	if (!error && (want & MASK_PRE))
+		{
+		error = (*cb)(node, MASK_PRE, cbdata);
+		}
+
+	if (!error)
+		{
+		error = rwalk0(GET_CHILD(node, OTHER(dir)), dir, want, cb, cbdata);
+		}
+
+	if (!error && (want & MASK_IN))
+		{
+		error = (*cb)(node, MASK_IN , cbdata);
+		}
+
+	if (!error)
+		{
+		error = rwalk0(GET_CHILD(node, dir), dir, want, cb, cbdata);
+		}
+
+	if (!error && (want & MASK_POST))
+		{
+		error = (*cb)(node, MASK_POST, cbdata);
+		}
+
+	return error;
+	}
+
+
+
+

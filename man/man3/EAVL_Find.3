@@ -1,0 +1,203 @@
+'\" t
+.\" Copyright (c) 2017, Raymond S Brand
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 
+.\"  * Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 
+.\"  * Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 
+.\"  * Redistributions in source or binary form must carry prominent
+.\"    notices of any modifications.
+.\" 
+.\"  * Neither the name of the Raymond S Brand nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.TH \%EAVL_Find 3 2017-06-20 "EAVL" "RSBX Libraries"
+
+.SH NAME
+\%EAVLp_Find, \%EAVLs_Find, \%EAVLc_Find \- find node in a tree
+
+.SH SYNOPSIS
+.nf
+.B #include """EAVL_pTree.h"""
+.sp
+.BI "int EAVLp_Find(EAVLp_context_t* " context ", EAVL_rel_t " rel ","
+.in +5n
+.BI " EAVLp_cbCompare_t* " compare ", void* " ref_value ","
+.BI " EAVLp_node_t* " ref_node ", EAVLp_node_t** " resultp ");"
+.in
+ ...
+.sp
+.B #include """EAVL_sTree.h"""
+.sp
+.BI "int EAVLs_Find(EAVLs_context_t* " context ", EAVL_rel_t " rel ","
+.in +5n
+.BI " EAVLs_cbCompare_t* " compare ", void* " ref_value ","
+.BI " EAVLs_node_t* " ref_node ", EAVLs_node_t** " resultp ");"
+.in
+ ...
+.sp
+.B #include """EAVL_cTree.h"""
+.sp
+.BI "int EAVLc_Find(EAVLc_context_t* " context ", EAVL_rel_t " rel ","
+.in +5n
+.BI " EAVLc_cbCompare_t* " compare ", void* " ref_value ","
+.BI " EAVLc_node_t* " ref_node ", EAVLc_node_t** " resultp ");"
+.in
+.fi
+
+.SH DESCRIPTION
+The
+.BR \%EAVLp_Find "(), " \%EAVLs_Find "(), and " \%EAVLc_Find ()
+functions search the associated tree for a node that has the specified
+relationship with the specified reference(s) and stores the address of that
+node in
+.IR \%*resultp .
+
+.SH PARAMETERS
+.TP
+.I \%context
+Address of an associated and set context structure.
+.TP
+.I \%rel
+Specifies how the found node relates to
+.IR \%ref_value " and " \%ref_node .
+Valid values are:
+.TS
+LB	L.
+EAVL_FIND_LT	Right-most node left of the reference
+EAVL_FIND_LE	T{
+.na
+Right-most node left of or equivalent to the reference
+.ad
+T}
+EAVL_FIND_EQ	Equivalent to the reference
+EAVL_FIND_GE	T{
+.na
+Left-most node right of or equivalent the reference
+.ad
+T}
+EAVL_FIND_GT	Left-most node right of the reference
+.TE
+.TP
+.I \%compare
+NULL or a pointer to an alternative comparison callback to use instead of the
+compare callback set when the associated tree was initialized.
+.sp
+An alternative
+compare callback MUST be compatible with the callback set when the associated
+tree was initialized.  That is, if the alternative compare callback returns
+.BR \%EAVL_CMP_LEFT " or " \%EAVL_CMP_RIGHT
+for a comparison then the compare callback set when the associated tree was
+initialized MUST return the same value.
+.TP
+.I \%ref_value
+Pointer to a value to compare tree nodes with while searching the tree.
+.TP
+.I \%ref_node
+Pointer to a node to compare tree nodes with while searching the tree.
+.TP
+.I \%resultp
+Pointer to an \%EAVL node pointer of the appropriate type.
+
+.SH RETURN VALUE
+.TP
+.B \%EAVL_OK
+Success.
+.TP
+.B \%EAVL_CALLBACK
+A retryable callback error occurred. The same \%EAVL operation may be attempted
+again after the reason for the callback error return is ameliorated.
+.TP
+.B \%EAVL_ERROR_CALLBACK
+A non retryable callback error occurred.
+.TP
+.B \%EAVL_ERROR_CONTEXT
+Returned if the context is not set or if
+.B \%EAVL_CHECK_CONTEXT
+checking is available and enabled and
+.I \%context
+is in an invalid state.
+.TP
+.B \%EAVL_ERROR_PARAMETER
+Returned if
+.IR \%context " or " \%resultp
+are NULL or the
+.IR \%dir " or " \%order
+parameters are not valid.
+.TP
+.B \%EAVL_ERROR_TREE
+Returned if
+.B \%EAVL_CHECK_TREE
+checking is available and enabled and the associated tree does not pass the
+tree checks.
+
+.SH CONTEXT STATE
+On function return, context state will match the following table:
+.TS
+L	C	C
+C	C	C
+L	|C	C|.
+	Operation	Other
+Result	Context	Contexts
+	_	_
+EAVL_OK	Set	Unchanged
+EAVL_NOTFOUND	Not set	Unchanged
+EAVL_CALLBACK	Unchanged	Unchanged
+	_	_
+EAVL_ERROR_CALLBACK	Not set	Unchanged
+EAVL_ERROR_CONTEXT	Unchanged	Unchanged
+EAVL_ERROR_PARAMETER	Unchanged	Unchanged
+EAVL_ERROR_TREE	Unchanged	Unchanged
+	_	_
+EAVL_ERROR*	Not set	Unchanged
+	_	_
+.TE
+
+.SH RESOURCE USAGE
+.TS
+C	C	C	C
+|C	C	C	C|.
+Work	Heap	Stack	Pathe*
+_	_	_	_
+\(*O(log(n))	\(*O(0)	\(*O(1)	\(*O(log(n))
+_	_	_	_
+.TE
+Where
+.I n
+is the number of nodes in the tree.
+.sp
+Pathe usage is due to the \%EAVL?_cbPathe() callbacks. For the \%EAVL
+pTree tree type, Pathe usage is Ο(0).
+
+.SH SEE ALSO
+.nh
+.na
+.BR \%EAVL_FirstNext (3),
+.BR \%EAVL (7),
+.BR \%EAVL_cbCompare (7),
+.BR \%EAVL_cbPathe (7),
+.BR \%EAVL_checks (7)
+.ad
+.hy 1

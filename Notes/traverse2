@@ -1,0 +1,143 @@
+
+11	PRE	IN	POST		PRE	    IN		POST
+
+10	PRE	IN			PRE	    IN+POST
+
+01		IN	POST			PRE+IN		POST
+
+00		IN				PRE+IN+POST
+
+
+
+
+#define TRAVERSECB(NODE, COVER, TTCB, DATA, LIMITER, RES)		\
+	do								\
+		{							\
+		if ((TTCB))						\
+			{						\
+			int		TTres;				\
+									\
+			TTres = (*(TTCB))((NODE), (COVER), (DATA));	\
+			switch (TTres)					\
+				{					\
+				case EAVL_OK:				\
+					break;				\
+									\
+				case EAVL_FINISHED:			\
+					(TTCB) = NULL;			\
+					break;				\
+									\
+				case EAVL_LIMIT:			\
+					(LIMITER) = 1;			\
+					break;				\
+									\
+				default:				\
+					(TTCB) = NULL;			\
+					(RES) = EAVL_ERROR_CALLBACK;	\
+				}					\
+			}						\
+		} while (0)
+
+
+int PUBLIC(Tree_Traverse)(
+		EAVL?_context_t*	context,
+		EAVL_dir_t		dir,
+		EAVL_order_mask_t	interests,
+		EAVL?_cbTraverse_t	callback
+		)
+	{
+	EAVL?_node_t*		node;
+	EAVL?_node_t*		prev;
+	EAVL_dir_t		other;
+	EAVL_order_mask_t	coverage;
+	void*			cbdata;
+	int			result = EAVL_OK;
+
+	CHECK_PARAM_NON_NULL(context);
+	CHECK_PARAM_NON_NULL(callback);
+	CHECK_PARAM_DIR(dir);
+
+	if (!interests || interests != (interests & (ORDER_MASK_PRE | ORDER_MASK_IN | ORDER_MASK_POST)))
+		{
+		RESULT(EAVL_ERROR_PARAMETER);
+		}
+
+	CHECK_STD_PRE(context, context->tree, 0);
+
+	node = context->tree->root;
+	prev = node;			// Not NULL and not node child
+	PUSH(NULL);
+	other = DIR_OTHER(dir);
+	cbdata = context->common.cbdata;
+
+	while (callback && node)
+		{
+		EAVL?_node_t*		T0 = GET_CHILD(node, other);
+		EAVL?_node_t*		T1 = GET_CHILD(node, dir);
+		unsigned int		limiter = 0;
+
+		if (T1 == prev)
+			{
+			if (interests & ORDER_MASK_POST)
+				{
+				TRAVERSECB(node, ORDER_MASK_POST, callback, cbdata, limiter, result);
+				}
+
+			prev = node;
+			node = POP();
+
+			continue;
+			}
+
+		if (T0 && T0 != prev)
+			{
+			if (interests & ORDER_MASK_PRE)
+				{
+				TRAVERSECB(node, ORDER_MASK_PRE, callback, cbdata, limiter, result);
+				}
+
+			prev = node;
+			if (limiter)
+				{
+				node = POP();
+				}
+			else
+				{
+				PUSH(node);
+				node = T0;
+				}
+
+			continue;
+			}
+
+		coverage = interests
+				&
+					(
+					ORDER_MASK_IN
+					| ((T0) ? 0 : ORDER_MASK_PRE)
+					| ((T1) ? 0 : ORDER_MASK_POST)
+					)
+				;
+		if (coverage)
+			{
+			TRAVERSECB(node, coverage, callback, cbdata, limiter, result);
+			}
+
+		prev = node;
+		if (T1 && !limiter)
+			{
+			PUSH(node);
+			node = T1;
+			}
+		else
+			{
+			node = POP();
+			}
+
+		/* continue; */
+		}
+
+	CHECK_STD_POST(context->tree, context);
+
+	RETURN;
+	}
