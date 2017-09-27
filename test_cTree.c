@@ -149,6 +149,7 @@ printf("!!\n");
 	if (index == -1u)	// set size
 		{
 		unsigned int		count = (PATHE_STORE_INITIAL);
+		void*			temp;
 
 //printf("Pathe-set_size:: %4d  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 		if (pathestore->count < param)
@@ -163,7 +164,7 @@ printf("!!\n");
 			count <<= 1;
 			}
 
-		void* temp = realloc(pathestore->elements, sizeof(EAVLc_pathelement_t)*count);
+		temp = realloc(pathestore->elements, sizeof(EAVLc_pathelement_t)*count);
 		if (temp)
 			{
 			pathestore->elements = (EAVLc_pathelement_t*)temp;
@@ -197,13 +198,16 @@ printf("!!!\n");
 	if (index >= pathestore->count)
 		{
 		unsigned int		count = pathestore->count;
+		void*			temp;
+
+//printf("Pathe-expand::   %4u  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 
 		while (index >= count)
 			{
 			count <<= 1;
 			}
 
-		void* temp = realloc(pathestore->elements, sizeof(EAVLc_pathelement_t)*count);
+		temp = realloc(pathestore->elements, sizeof(EAVLc_pathelement_t)*count);
 		if (!temp)
 			{
 			// WARNING: This WILL cause a SEGFAULT!
@@ -214,7 +218,6 @@ printf("!!!!\n");
 
 		pathestore->elements = (EAVLc_pathelement_t*)temp;
 		pathestore->count = count;
-//printf("Pathe-expand::   %4u  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 		}
 
 	return &pathestore->elements[index];
@@ -461,10 +464,10 @@ EAVL_dir_t Node_CMP(
 		void *data
 		)
 	{
-	UNUSED(data);
-
 	unsigned int *valp = &container_of(node, struct node, node)->val;
 	unsigned int *refp = (unsigned int *)ref_value;
+
+	UNUSED(data);
 
 	if (ref_node)
 		{

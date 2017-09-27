@@ -765,10 +765,10 @@ static EAVL_dir_t ecb_cmp(
 		void*			cbdata
 		)
 	{
-	QUIET_UNUSED(cbdata);
-
 	unsigned int *valp = &container_of(node, node_t, node)->key;
 	unsigned int *refp = (unsigned int *)ref_value;
+
+	QUIET_UNUSED(cbdata);
 
 	if (ref_node)
 		{

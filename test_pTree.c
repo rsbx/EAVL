@@ -281,10 +281,10 @@ EAVL_dir_t Node_CMP(
 		void *data
 		)
 	{
-	UNUSED(data);
-
 	unsigned int *valp = &container_of(node, struct node, node)->val;
 	unsigned int *refp = (unsigned int *)ref_value;
+
+	UNUSED(data);
 
 	if (ref_node)
 		{
