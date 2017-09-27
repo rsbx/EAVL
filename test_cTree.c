@@ -173,7 +173,7 @@ printf("!!\n");
 		return NULL;
 		}
 
-	if (param != 0)	// shift down 1
+	if (param != 0)		// shift down 1
 		{
 //printf("Pathe-shift::    %4u  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 

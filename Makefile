@@ -67,7 +67,7 @@ LIB_NAME	:= $(LIB_SO).$(VERSION_API).$(VERSION_FEATURE)
 LIB_FILE	:= $(LIB_NAME).$(VERSION_PATCH).$(VERSION_LOCAL).$(VERSION_BUILD)
 
 LIB_PTREE_SRCS	:= pTree.c pTree_checks.c
-LIB_STREE_SRCS	:= sTree.c sTree_checks.c 
+LIB_STREE_SRCS	:= sTree.c sTree_checks.c
 LIB_CTREE_SRCS	:= cTree.c cTree_checks.c cTree_traverse.c
 LIB_COMMON_SRCS	:= context.c treeload.c
 

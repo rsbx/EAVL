@@ -184,7 +184,7 @@ printf("!!\n");
 		return NULL;
 		}
 
-	if (param != 0)	// shift down 1
+	if (param != 0)		// shift down 1
 		{
 //printf("Pathe-shift::    %4u  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 
@@ -213,7 +213,6 @@ printf("!!!\n");
 //printf("Pathe-expand::   %4u  %4u  (%u)\n", index, param, pathestore->count);fflush(NULL);
 
 		temp = realloc(pathestore->elements, sizeof(EAVLs_pathelement_t)*count);
-
 		if (!temp)
 			{
 			// WARNING: This MAY cause a SEGFAULT!
