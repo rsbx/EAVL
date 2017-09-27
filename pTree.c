@@ -90,7 +90,7 @@ int PUBLIC(Tree_Init)(
 
 int PUBLIC(Clear)(
 		EAVLp_context_t*	context,
-		EAVLp_cbRelease_t*	noderelease
+		EAVLp_cbRelease_t	noderelease
 		)
 	{
 	EAVLp_node_t*		curr;
@@ -257,7 +257,7 @@ int PUBLIC(Context_Disassociate)(
 int PRIVATE(find)(
 		EAVLp_node_t*		node,
 		EAVL_rel_t		rel,
-		EAVLp_cbCompare_t*	compare,
+		EAVLp_cbCompare_t	compare,
 		void*			cbdata,
 		void*			ref_value,
 		EAVLp_node_t*		ref_node,
@@ -304,7 +304,7 @@ int PRIVATE(find)(
 int PUBLIC(Find)(
 		EAVLp_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLp_cbCompare_t*	compare,
+		EAVLp_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLp_node_t*		ref_node,
 		EAVLp_node_t**		resultp
@@ -521,7 +521,7 @@ int PUBLIC(Fixup)(
 		)
 	{
 	EAVLp_node_t*		curr;
-	EAVLp_cbFuxup_t*	fixup;
+	EAVLp_cbFixup_t		fixup;
 	void*			cbdata;
 	int			result = EAVL_OK;
 
@@ -585,11 +585,11 @@ static void PRIVATE(setbal)(
 static int PRIVATE(fixup)(
 		void**			nodep,
 		unsigned int		nodeindex,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		)
 	{
-	EAVLp_cbFuxup_t*	cbfixup = (EAVLp_cbFuxup_t*)fixup;
+	EAVLp_cbFixup_t		cbfixup = (EAVLp_cbFixup_t)fixup;
 
 	CB_FIXUP(
 			((EAVLp_node_t**)nodep)[nodeindex],
@@ -643,7 +643,7 @@ int PUBLIC(Load)(
 			count,
 			(void**)nodes,
 			&PRIVATE(load_cbset),
-			(FOREIGN(_, load_cbFuxup_t)*)context->tree->cbset->fixup,
+			(FOREIGN(_, load_cbFixup_t))context->tree->cbset->fixup,
 			context->common.cbdata
 			);
 
@@ -738,8 +738,8 @@ static void PRIVATE(rotate_double)(
 int PRIVATE(insert)(
 		EAVLp_node_t**		rootp,
 		EAVLp_node_t*		new_node,
-		EAVLp_cbCompare_t*	compare,
-		EAVLp_cbFuxup_t*	fixup,
+		EAVLp_cbCompare_t	compare,
+		EAVLp_cbFixup_t		fixup,
 		void*			cbdata,
 		EAVLp_node_t**		resultp
 		)
@@ -936,7 +936,7 @@ int PUBLIC(Insert)(
 int PRIVATE(remove)(
 		EAVLp_node_t**		rootp,
 		EAVLp_node_t*		del_node,
-		EAVLp_cbFuxup_t*	fixup,
+		EAVLp_cbFixup_t		fixup,
 		void*			cbdata,
 		EAVLp_node_t**		nodep
 		)

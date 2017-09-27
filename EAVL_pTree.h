@@ -52,28 +52,28 @@ typedef struct EAVLp_context	EAVLp_context_t;
 typedef EAVL_pnode_t		EAVLp_node_t;
 typedef struct EAVLp_cbset	EAVLp_cbset_t;
 
-typedef EAVL_dir_t (EAVLp_cbCompare_t)(
+typedef EAVL_dir_t (*EAVLp_cbCompare_t)(
 		void*		ref_value,
 		EAVLp_node_t*	ref_node,
 		EAVLp_node_t*	node,
 		void*		cbdata
 		);
 
-typedef int (EAVLp_cbFuxup_t)(
+typedef int (*EAVLp_cbFixup_t)(
 		EAVLp_node_t*	node,
 		EAVLp_node_t*	childL,
 		EAVLp_node_t*	childR,
 		void*		cbdata
 		);
 
-typedef int (EAVLp_cbVerify_t)(
+typedef int (*EAVLp_cbVerify_t)(
 		EAVLp_node_t*	node,
 		EAVLp_node_t*	childL,
 		EAVLp_node_t*	childR,
 		void*		cbdata
 		);
 
-typedef int (EAVLp_cbRelease_t)(
+typedef int (*EAVLp_cbRelease_t)(
 		EAVLp_node_t*	node,
 		void*		cbdata
 		);
@@ -95,9 +95,9 @@ struct EAVLp_context
 
 struct EAVLp_cbset
 	{
-	EAVLp_cbCompare_t*	compare;
-	EAVLp_cbFuxup_t*	fixup;
-	EAVLp_cbVerify_t*	verify;
+	EAVLp_cbCompare_t	compare;
+	EAVLp_cbFixup_t		fixup;
+	EAVLp_cbVerify_t	verify;
 	};
 
 
@@ -119,7 +119,7 @@ int EAVLp_Load(
 
 int EAVLp_Clear(
 		EAVLp_context_t*	context,
-		EAVLp_cbRelease_t*	noderelease
+		EAVLp_cbRelease_t	noderelease
 		);
 
 int EAVLp_Release(
@@ -154,7 +154,7 @@ int EAVLp_Remove(
 int EAVLp_Find(
 		EAVLp_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLp_cbCompare_t*	compare,
+		EAVLp_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLp_node_t*		ref_node,
 		EAVLp_node_t**		resultp

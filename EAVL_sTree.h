@@ -56,33 +56,33 @@ typedef struct
 typedef struct EAVLs_cbset	EAVLs_cbset_t;
 typedef EAVLs_node_t*		EAVLs_pathelement_t;
 
-typedef EAVL_dir_t (EAVLs_cbCompare_t)(
+typedef EAVL_dir_t (*EAVLs_cbCompare_t)(
 		void*		ref_value,
 		EAVLs_node_t*	ref_node,
 		EAVLs_node_t*	node,
 		void*		cbdata
 		);
 
-typedef int (EAVLs_cbFuxup_t)(
+typedef int (*EAVLs_cbFixup_t)(
 		EAVLs_node_t*	node,
 		EAVLs_node_t*	childL,
 		EAVLs_node_t*	childR,
 		void*		cbdata
 		);
 
-typedef int (EAVLs_cbVerify_t)(
+typedef int (*EAVLs_cbVerify_t)(
 		EAVLs_node_t*	node,
 		EAVLs_node_t*	childL,
 		EAVLs_node_t*	childR,
 		void*		cbdata
 		);
 
-typedef int (EAVLs_cbRelease_t)(
+typedef int (*EAVLs_cbRelease_t)(
 		EAVLs_node_t*	node,
 		void*		cbdata
 		);
 
-typedef EAVLs_pathelement_t* (EAVLs_cbPathe_t)(
+typedef EAVLs_pathelement_t* (*EAVLs_cbPathe_t)(
 		unsigned int	index,
 		unsigned int	param,
 		void*		cbdata
@@ -102,14 +102,14 @@ struct EAVLs_context
 	EAVLs_node_t*		recent;
 	EAVL_context_common_t	common;
 	unsigned int		pathlen;
-	EAVLs_cbPathe_t*	cbpathe;
+	EAVLs_cbPathe_t		cbpathe;
 	};
 
 struct EAVLs_cbset
 	{
-	EAVLs_cbCompare_t*	compare;
-	EAVLs_cbFuxup_t*	fixup;
-	EAVLs_cbVerify_t*	verify;
+	EAVLs_cbCompare_t	compare;
+	EAVLs_cbFixup_t		fixup;
+	EAVLs_cbVerify_t	verify;
 	};
 
 
@@ -131,7 +131,7 @@ int EAVLs_Load(
 
 int EAVLs_Clear(
 		EAVLs_context_t*	context,
-		EAVLs_cbRelease_t*	noderelease
+		EAVLs_cbRelease_t	noderelease
 		);
 
 int EAVLs_Release(
@@ -140,7 +140,7 @@ int EAVLs_Release(
 
 int EAVLs_Context_Init(
 		EAVLs_context_t*	context,
-		EAVLs_cbPathe_t*	cbpathe,
+		EAVLs_cbPathe_t		cbpathe,
 		void*			cbdata
 		);
 
@@ -167,7 +167,7 @@ int EAVLs_Remove(
 int EAVLs_Find(
 		EAVLs_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLs_cbCompare_t*	compare,
+		EAVLs_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLs_node_t*		ref_node,
 		EAVLs_node_t**		resultp

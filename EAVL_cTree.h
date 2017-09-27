@@ -57,38 +57,38 @@ typedef struct
 typedef struct EAVLc_cbset	EAVLc_cbset_t;
 typedef EAVLc_node_t*		EAVLc_pathelement_t;
 
-typedef EAVL_dir_t (EAVLc_cbCompare_t)(
+typedef EAVL_dir_t (*EAVLc_cbCompare_t)(
 		void*		ref_value,
 		EAVLc_node_t*	ref_node,
 		EAVLc_node_t*	node,
 		void*		cbdata
 		);
 
-typedef EAVLc_node_t* (EAVLc_cbDup_t)(
+typedef EAVLc_node_t* (*EAVLc_cbDup_t)(
 		EAVLc_node_t*	node,
 		void*		cbdata
 		);
 
-typedef int (EAVLc_cbFuxup_t)(
-		EAVLc_node_t*	node,
-		EAVLc_node_t*	childL,
-		EAVLc_node_t*	childR,
-		void*		cbdata
-		);
-
-typedef int (EAVLc_cbVerify_t)(
+typedef int (*EAVLc_cbFixup_t)(
 		EAVLc_node_t*	node,
 		EAVLc_node_t*	childL,
 		EAVLc_node_t*	childR,
 		void*		cbdata
 		);
 
-typedef int (EAVLc_cbRelease_t)(
+typedef int (*EAVLc_cbVerify_t)(
+		EAVLc_node_t*	node,
+		EAVLc_node_t*	childL,
+		EAVLc_node_t*	childR,
+		void*		cbdata
+		);
+
+typedef int (*EAVLc_cbRelease_t)(
 		EAVLc_node_t*	node,
 		void*		cbdata
 		);
 
-typedef EAVLc_pathelement_t* (EAVLc_cbPathe_t)(
+typedef EAVLc_pathelement_t* (*EAVLc_cbPathe_t)(
 		unsigned int	index,
 		unsigned int	param,
 		void*		cbdata
@@ -108,15 +108,15 @@ struct EAVLc_context
 	EAVLc_node_t*		recent;
 	EAVL_context_common_t	common;
 	unsigned int		pathlen;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbPathe_t		cbpathe;
 	};
 
 struct EAVLc_cbset
 	{
-	EAVLc_cbCompare_t*	compare;
-	EAVLc_cbDup_t*		dup;
-	EAVLc_cbFuxup_t*	fixup;
-	EAVLc_cbVerify_t*	verify;
+	EAVLc_cbCompare_t	compare;
+	EAVLc_cbDup_t		dup;
+	EAVLc_cbFixup_t		fixup;
+	EAVLc_cbVerify_t	verify;
 	};
 
 
@@ -143,7 +143,7 @@ int EAVLc_Split(
 
 int EAVLc_Clear(
 		EAVLc_context_t*	context,
-		EAVLc_cbRelease_t*	noderelease
+		EAVLc_cbRelease_t	noderelease
 		);
 
 int EAVLc_Release(
@@ -152,7 +152,7 @@ int EAVLc_Release(
 
 int EAVLc_Context_Init(
 		EAVLc_context_t*	context,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata
 		);
 
@@ -179,7 +179,7 @@ int EAVLc_Remove(
 int EAVLc_Find(
 		EAVLc_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLc_cbCompare_t*	compare,
+		EAVLc_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLc_node_t*		ref_node,
 		EAVLc_node_t**		resultp

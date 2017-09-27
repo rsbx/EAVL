@@ -284,7 +284,7 @@ static int rwalk3(
 		EAVL_dir_t		dir,
 		order_mask_t		want,
 		void**			start,
-		EAVLp_cbCompare_t*	compare,
+		EAVLp_cbCompare_t	compare,
 		cb_t**			cbp,
 		void*			cbdata
 		)
@@ -796,7 +796,7 @@ static int cb_verify(
 	tree_track_t*		tracker;
 	EAVLp_node_t*		childL;
 	EAVLp_node_t*		childR;
-	EAVLp_cbCompare_t*	compare;
+	EAVLp_cbCompare_t	compare;
 	unsigned int		i;
 
 	QUIET_UNUSED(cover);

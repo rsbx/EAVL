@@ -91,13 +91,13 @@ int PUBLIC(Tree_Init)(
 
 int PUBLIC(Clear)(
 		EAVLs_context_t*	context,
-		EAVLs_cbRelease_t*	noderelease
+		EAVLs_cbRelease_t	noderelease
 		)
 	{
 	EAVLs_node_t*		curr;
 	EAVLs_node_t*		prev;
 	EAVLs_node_t*		node;
-	EAVLs_cbPathe_t*	cbpathe;
+	EAVLs_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		pathlen = 0;
 	unsigned int		i;
@@ -193,7 +193,7 @@ int PUBLIC(Release)(
 
 int PUBLIC(Context_Init)(
 		EAVLs_context_t*	context,
-		EAVLs_cbPathe_t*	cbpathe,
+		EAVLs_cbPathe_t		cbpathe,
 		void*			cbdata
 		)
 	{
@@ -283,8 +283,8 @@ int PUBLIC(Context_Disassociate)(
 int PRIVATE(find)(
 		EAVLs_node_t*		node,
 		EAVL_rel_t		rel,
-		EAVLs_cbCompare_t*	compare,
-		EAVLs_cbPathe_t*	cbpathe,
+		EAVLs_cbCompare_t	compare,
+		EAVLs_cbPathe_t		cbpathe,
 		void*			cbdata,
 		void*			ref_value,
 		EAVLs_node_t*		ref_node,
@@ -339,7 +339,7 @@ int PRIVATE(find)(
 int PUBLIC(Find)(
 		EAVLs_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLs_cbCompare_t*	compare,
+		EAVLs_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLs_node_t*		ref_node,
 		EAVLs_node_t**		resultp
@@ -399,7 +399,7 @@ int PUBLIC(First)(
 	{
 	EAVLs_node_t*		curr;
 	EAVLs_node_t*		next;
-	EAVLs_cbPathe_t*	cbpathe;
+	EAVLs_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		pathlen = 0;
 	int			result = EAVL_OK;
@@ -474,7 +474,7 @@ int PUBLIC(Next)(
 	{
 	EAVLs_node_t*		curr;
 	EAVLs_node_t*		prev;
-	EAVLs_cbPathe_t*	cbpathe;
+	EAVLs_cbPathe_t		cbpathe;
 	void*			cbdata;
 	EAVL_dir_t		other = DIR_OTHER(dir);
 	unsigned int		pathlen;
@@ -584,8 +584,8 @@ int PUBLIC(Fixup)(
 		)
 	{
 	EAVLs_node_t*		curr;
-	EAVLs_cbFuxup_t*	fixup;
-	EAVLs_cbPathe_t*	cbpathe;
+	EAVLs_cbFixup_t		fixup;
+	EAVLs_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		pathlen;
 	int			result = EAVL_OK;
@@ -652,11 +652,11 @@ static void PRIVATE(setbal)(
 static int PRIVATE(fixup)(
 		void**			nodep,
 		unsigned int		nodeindex,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		)
 	{
-	EAVLs_cbFuxup_t*	cbfixup = (EAVLs_cbFuxup_t*)fixup;
+	EAVLs_cbFixup_t		cbfixup = (EAVLs_cbFixup_t)fixup;
 
 	CB_FIXUP(
 			((EAVLs_node_t**)nodep)[nodeindex],
@@ -710,7 +710,7 @@ int PUBLIC(Load)(
 			count,
 			(void**)nodes,
 			&PRIVATE(load_cbset),
-			(FOREIGN(_, load_cbFuxup_t)*)context->tree->cbset->fixup,
+			(FOREIGN(_, load_cbFixup_t))context->tree->cbset->fixup,
 			context->common.cbdata
 			);
 
@@ -805,9 +805,9 @@ static void PRIVATE(rotate_double)(
 static int PRIVATE(insert)(
 		EAVLs_node_t**		rootp,
 		EAVLs_node_t*		new_node,
-		EAVLs_cbCompare_t*	compare,
-		EAVLs_cbFuxup_t*	fixup,
-		EAVLs_cbPathe_t*	cbpathe,
+		EAVLs_cbCompare_t	compare,
+		EAVLs_cbFixup_t		fixup,
+		EAVLs_cbPathe_t		cbpathe,
 		void*			cbdata,
 		EAVLs_node_t**		resultp,
 		unsigned int*		pathlenp
@@ -1040,8 +1040,8 @@ static int PRIVATE(remove)(
 		EAVLs_node_t**		rootp,
 		EAVLs_node_t*		del_node,
 		unsigned int		pathlen,
-		EAVLs_cbFuxup_t*	fixup,
-		EAVLs_cbPathe_t*	cbpathe,
+		EAVLs_cbFixup_t		fixup,
+		EAVLs_cbPathe_t		cbpathe,
 		void*			cbdata,
 		EAVLs_node_t**		nodep
 		)

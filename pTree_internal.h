@@ -52,7 +52,7 @@
 int FOREIGN(p_, find)(
 		EAVLp_node_t*		curr,
 		EAVL_rel_t		rel,
-		EAVLp_cbCompare_t*	compare,
+		EAVLp_cbCompare_t	compare,
 		void*			cbdata,
 		void*			ref_value,
 		EAVLp_node_t*		ref_node,
@@ -62,8 +62,8 @@ int FOREIGN(p_, find)(
 int FOREIGN(p_, insert)(
 		EAVLp_node_t**		rootp,
 		EAVLp_node_t*		new_node,
-		EAVLp_cbCompare_t*	compare,
-		EAVLp_cbFuxup_t*	fixup,
+		EAVLp_cbCompare_t	compare,
+		EAVLp_cbFixup_t		fixup,
 		void*			cbdata,
 		EAVLp_node_t**		resultp
 		);
@@ -71,7 +71,7 @@ int FOREIGN(p_, insert)(
 int FOREIGN(p_, remove)(
 		EAVLp_node_t**		rootp,
 		EAVLp_node_t*		del_node,
-		EAVLp_cbFuxup_t*	fixup,
+		EAVLp_cbFixup_t		fixup,
 		void*			cbdata,
 		EAVLp_node_t**		nodep
 		);

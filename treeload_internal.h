@@ -48,39 +48,39 @@
 #include "naming_internal.h"
 
 
-typedef void (FOREIGN(_, load_init_t))(
+typedef void (*FOREIGN(_, load_init_t))(
 		void**			nodep,
 		unsigned int		nodeindex
 		);
-typedef void (FOREIGN(_, load_setchild_t))(
+typedef void (*FOREIGN(_, load_setchild_t))(
 		void**			nodep,
 		unsigned int		parentindex,
 		unsigned int		childindex,
 		EAVL_dir_t		dir
 		);
-typedef void (FOREIGN(_, load_setbal_t))(
+typedef void (*FOREIGN(_, load_setbal_t))(
 		void**			nodep,
 		unsigned int		nodeindex,
 		EAVL_dir_t		bal
 		);
-typedef int (FOREIGN(_, load_cbFuxup_t))(
+typedef int (*FOREIGN(_, load_cbFixup_t))(
 		EAVL_node_t*		node,
 		EAVL_node_t*		childL,
 		EAVL_node_t*		childR,
 		void*			cbdata
 		);
-typedef int (FOREIGN(_, load_fixup_t))(
+typedef int (*FOREIGN(_, load_fixup_t))(
 		void**			nodep,
 		unsigned int		nodeindex,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		);
 
 typedef struct {
-		FOREIGN(_, load_init_t)*	init;
-		FOREIGN(_, load_setchild_t)*	setchild;
-		FOREIGN(_, load_setbal_t)*	setbal;
-		FOREIGN(_, load_fixup_t)*	fixup;
+		FOREIGN(_, load_init_t)		init;
+		FOREIGN(_, load_setchild_t)	setchild;
+		FOREIGN(_, load_setbal_t)	setbal;
+		FOREIGN(_, load_fixup_t)	fixup;
 		} FOREIGN(_, load_cbset_t);
 
 
@@ -89,7 +89,7 @@ int FOREIGN(_, load)(
 		unsigned int		count,
 		void**			nodep,
 		FOREIGN(_, load_cbset_t)*	cbset,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		);
 

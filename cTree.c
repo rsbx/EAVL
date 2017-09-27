@@ -126,8 +126,8 @@ static int PRIVATE(tree_split)(
 		EAVLc_node_t**		rootp,
 		EAVLc_node_t**		targetp,
 		unsigned int		pathlen,
-		EAVLc_cbDup_t*		dup,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbDup_t		dup,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata
 		)
 	{
@@ -226,7 +226,7 @@ int PUBLIC(Split)(
 
 typedef struct
 	{
-	EAVLc_cbRelease_t*	cbrelease;
+	EAVLc_cbRelease_t	cbrelease;
 	void*			cbdata;
 	}			tc_cbdata_t;
 
@@ -266,11 +266,11 @@ static int PRIVATE(cb_tree_clear)(
 
 int PUBLIC(Clear)(
 		EAVLc_context_t*	context,
-		EAVLc_cbRelease_t*	cbrelease
+		EAVLc_cbRelease_t	cbrelease
 		)
 	{
 	tc_cbdata_t		tccbdata;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbPathe_t		cbpathe;
 	unsigned int		i = 1;
 	int			result = EAVL_OK;
 
@@ -337,7 +337,7 @@ int PUBLIC(Release)(
 
 int PUBLIC(Context_Init)(
 		EAVLc_context_t*	context,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata
 		)
 	{
@@ -427,8 +427,8 @@ int PUBLIC(Context_Disassociate)(
 int PRIVATE(find)(
 		EAVLc_node_t*		node,
 		EAVL_rel_t		rel,
-		EAVLc_cbCompare_t*	compare,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbCompare_t	compare,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata,
 		void*			ref_value,
 		EAVLc_node_t*		ref_node,
@@ -483,7 +483,7 @@ int PRIVATE(find)(
 int PUBLIC(Find)(
 		EAVLc_context_t*	context,
 		EAVL_rel_t		rel,
-		EAVLc_cbCompare_t*	compare,
+		EAVLc_cbCompare_t	compare,
 		void*			ref_value,
 		EAVLc_node_t*		ref_node,
 		EAVLc_node_t**		resultp
@@ -543,7 +543,7 @@ int PUBLIC(First)(
 	{
 	EAVLc_node_t*		curr;
 	EAVLc_node_t*		next;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		pathlen = 0;
 	int			result = EAVL_OK;
@@ -618,7 +618,7 @@ int PUBLIC(Next)(
 	{
 	EAVLc_node_t*		curr;
 	EAVLc_node_t*		prev;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbPathe_t		cbpathe;
 	void*			cbdata;
 	EAVL_dir_t		other = DIR_OTHER(dir);
 	unsigned int		pathlen;
@@ -728,8 +728,8 @@ int PUBLIC(Fixup)(
 		)
 	{
 	EAVLc_node_t*		curr;
-	EAVLc_cbFuxup_t*	fixup;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbFixup_t		fixup;
+	EAVLc_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		pathlen;
 	int			result = EAVL_OK;
@@ -796,11 +796,11 @@ static void PRIVATE(setbal)(
 static int PRIVATE(fixup)(
 		void**			nodep,
 		unsigned int		nodeindex,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		)
 	{
-	EAVLc_cbFuxup_t*	cbfixup = (EAVLc_cbFuxup_t*)fixup;
+	EAVLc_cbFixup_t		cbfixup = (EAVLc_cbFixup_t)fixup;
 
 	CB_FIXUP(
 			((EAVLc_node_t**)nodep)[nodeindex],
@@ -854,7 +854,7 @@ int PUBLIC(Load)(
 			count,
 			(void**)nodes,
 			&PRIVATE(load_cbset),
-			(FOREIGN(_, load_cbFuxup_t)*)context->tree->cbset->fixup,
+			(FOREIGN(_, load_cbFixup_t))context->tree->cbset->fixup,
 			context->common.cbdata
 			);
 
@@ -949,10 +949,10 @@ static void PRIVATE(rotate_double)(
 static int PRIVATE(insert)(
 		EAVLc_node_t**		rootp,
 		EAVLc_node_t*		new_node,
-		EAVLc_cbCompare_t*	compare,
-		EAVLc_cbFuxup_t*	fixup,
-		EAVLc_cbDup_t*		dup,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbCompare_t	compare,
+		EAVLc_cbFixup_t		fixup,
+		EAVLc_cbDup_t		dup,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata,
 		EAVLc_node_t**		resultp,
 		unsigned int*		pathlenp
@@ -1200,8 +1200,8 @@ static int PRIVATE(remove_split)(
 		EAVLc_node_t**		rootp,
 		EAVLc_node_t**		delpointp,
 		unsigned int		pathlen,
-		EAVLc_cbDup_t*		dup,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbDup_t		dup,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata
 		)
 	{
@@ -1289,9 +1289,9 @@ static int PRIVATE(remove)(
 		EAVLc_node_t**		rootp,
 		EAVLc_node_t**		del_nodep,
 		unsigned int		pathlen,
-		EAVLc_cbFuxup_t*	fixup,
-		EAVLc_cbDup_t*		dup,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbFixup_t		fixup,
+		EAVLc_cbDup_t		dup,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata,
 		EAVLc_node_t**		nodep
 		)

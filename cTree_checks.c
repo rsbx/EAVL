@@ -71,7 +71,7 @@ int PRIVATE(Path_match)(
 		)
 	{
 	EAVLc_node_t*		node;
-	EAVLc_cbPathe_t*	cbpathe;
+	EAVLc_cbPathe_t		cbpathe;
 	void*			cbdata;
 	unsigned int		i;
 
@@ -125,8 +125,8 @@ static int PRIVATE(Validate_Tree_Recurse)(
 		EAVLc_node_t*		node,
 		EAVLc_node_t*		fenceL,
 		EAVLc_node_t*		fenceR,
-		EAVLc_cbCompare_t*	compare,
-		EAVLc_cbVerify_t**	verifyp,
+		EAVLc_cbCompare_t	compare,
+		EAVLc_cbVerify_t*	verifyp,
 		void*			cbdata,
 		int*			heightp,
 		EAVLc_node_t**		myinterval
@@ -137,8 +137,8 @@ static int PRIVATE(Validate_Tree_Recurse)(
 		EAVLc_node_t*		node,
 		EAVLc_node_t*		fenceL,
 		EAVLc_node_t*		fenceR,
-		EAVLc_cbCompare_t*	compare,
-		EAVLc_cbVerify_t**	verifyp,
+		EAVLc_cbCompare_t	compare,
+		EAVLc_cbVerify_t*	verifyp,
 		void*			cbdata,
 		int*			heightp,
 		EAVLc_node_t**		myinterval
@@ -237,7 +237,7 @@ int PRIVATE(Validate_Tree)(
 	{
 	int			result = EAVL_OK;
 	int			height;
-	EAVLc_cbVerify_t*	verify = tree->cbset->verify;
+	EAVLc_cbVerify_t	verify = tree->cbset->verify;
 	EAVLc_node_t*		stinterval[2];
 
 	if (tree->root)

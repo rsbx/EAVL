@@ -71,7 +71,7 @@ int PRIVATE(load)(
 		unsigned int		count,
 		void**			nodep,
 		FOREIGN(_, load_cbset_t)*	cbset,
-		FOREIGN(_, load_cbFuxup_t)*	fixup,
+		FOREIGN(_, load_cbFixup_t)	fixup,
 		void*			cbdata
 		)
 	{

@@ -52,8 +52,8 @@
 int FOREIGN(c_, find)(
 		EAVLc_node_t*		curr,
 		EAVL_rel_t		rel,
-		EAVLc_cbCompare_t*	compare,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbCompare_t	compare,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata,
 		void*			ref_value,
 		EAVLc_node_t*		ref_node,

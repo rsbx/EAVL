@@ -64,9 +64,9 @@ int PRIVATE(traverse)(
 		EAVL_dir_t		dir,
 		order_mask_t		interests,
 		unsigned int		safe,
-		EAVLc_cbTraverse_t*	callback,
+		EAVLc_cbTraverse_t	callback,
 		void*			cbtdata,
-		EAVLc_cbPathe_t*	cbpathe,
+		EAVLc_cbPathe_t		cbpathe,
 		void*			cbdata
 		)
 	{

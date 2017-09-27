@@ -224,7 +224,7 @@ int PRIVATE(Validate_Tree)(
 		{							\
 		if (PUBLIC(Checks_Enabled) & EAVL_CHECK_ORDER)		\
 			{						\
-			PUBLIC(cbCompare_t)*	compare;		\
+			PUBLIC(cbCompare_t)	compare;		\
 			void*			cbdata;			\
 			unsigned int		CNO_i;			\
 			EAVL_dir_t		CNO_cmp;		\
