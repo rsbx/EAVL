@@ -1133,18 +1133,6 @@ static int check_mtrack(
 		} while (0)
 
 
-#define TESTED_EAVLp_CALL(ERROR, FUNCT, ...)				\
-	do								\
-		{							\
-		if (((ERROR) = EAVLp_ ## FUNCT (__VA_ARGS__)))		\
-			{						\
-			printf("ERROR: " #FUNCT ": %d\n", error);	\
-			printf("\t%s:%u\n", __FILE__, __LINE__);	\
-			return (ERROR);					\
-			}						\
-		} while (0)
-
-
 static int cb_enumerate(
 		EAVLp_node_t*		node,
 		order_mask_t		cover,
