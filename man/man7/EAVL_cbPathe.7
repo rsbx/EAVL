@@ -77,9 +77,11 @@ If
 .I \%index
 is not -1u and
 .I \%param
-is not zero, then the entries at indexes
-.I \%index
-and higher are shifted down by one. This operation always returns NULL.
+is not zero, then the entries with indexes in the closed interval
+.RI [ \%index ", " \%param ]
+are shifted down by one. Entries with indexes greater than
+.I \%param
+MAY be discarded. This operation always returns NULL.
 .sp
 Otherwise, the address of the \%EAVLs_pathelement_t or \%EAVLc_pathelement_t at
 index
