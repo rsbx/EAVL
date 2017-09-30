@@ -51,12 +51,10 @@
 
 #include "eavl_internal.h"
 #include "naming_internal.h"
+#include "pTree_internal.h"
 
 
 #if EAVL_CHECKS_AVAILABLE & EAVL_CHECK_CONTEXT
-
-
-#include "pTree_internal.h"
 
 
 static EAVL_dir_t FOREIGN(context_, node_cmp)(
