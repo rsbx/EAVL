@@ -42,17 +42,17 @@
 .nf
 .B #include """EAVL_pTree.h"""
 .sp
-.BI "int (EAVLp_cbRelease)(EAVLp_node_t* " node ", void* " cbdata ");"
+.BI "int (*EAVLp_cbRelease)(EAVLp_node_t* " node ", void* " cbdata ");"
  ...
 .sp
 .B #include """EAVL_sTree.h"""
 .sp
-.BI "int (EAVLs_cbRelease)(EAVLs_node_t* " node ", void* " cbdata ");"
+.BI "int (*EAVLs_cbRelease)(EAVLs_node_t* " node ", void* " cbdata ");"
  ...
 .sp
 .B #include """EAVL_cTree.h"""
 .sp
-.BI "int (EAVLc_cbRelease)(EAVLc_node_t* " node ", void* " cbdata ");"
+.BI "int (*EAVLc_cbRelease)(EAVLc_node_t* " node ", void* " cbdata ");"
 .fi
 
 .SH DESCRIPTION

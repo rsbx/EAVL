@@ -42,7 +42,7 @@
 .nf
 .B #include """EAVL_pTree.h"""
 .sp
-.BI "int (EAVLp_cbFixup)(EAVLp_node_t* " node ", EAVLp_node_t* " childL ","
+.BI "int (*EAVLp_cbFixup)(EAVLp_node_t* " node ", EAVLp_node_t* " childL ","
 .in +5n
 .BI "EAVLp_node_t " childR ", void* " cbdata ");"
 .in
@@ -50,7 +50,7 @@
 .sp
 .B #include """EAVL_sTree.h"""
 .sp
-.BI "int (EAVLs_cbFixup)(EAVLs_node_t* " node ", EAVLs_node_t* " childL "," 
+.BI "int (*EAVLs_cbFixup)(EAVLs_node_t* " node ", EAVLs_node_t* " childL "," 
 .in +5n 
 .BI "EAVLs_node_t " childR ", void* " cbdata ");"
 .in
@@ -58,7 +58,7 @@
 .sp
 .B #include """EAVL_cTree.h"""
 .sp
-.BI "int (EAVLc_cbFixup)(EAVLc_node_t* " node ", EAVLc_node_t* " childL "," 
+.BI "int (*EAVLc_cbFixup)(EAVLc_node_t* " node ", EAVLc_node_t* " childL "," 
 .in +5n 
 .BI "EAVLc_node_t " childR ", void* " cbdata ");"
 .in

@@ -42,7 +42,7 @@
 .nf
 .B #include """EAVL_sTree.h"""
 .sp
-.BI "EAVLs_pathelement_t* (EAVLs_cbPathe)(unsigned int " index ","
+.BI "EAVLs_pathelement_t* (*EAVLs_cbPathe)(unsigned int " index ","
 .in +5n
 .BI "unsigned int " param ", void* " cbdata ");"
 .in
@@ -50,7 +50,7 @@
 .sp
 .B #include """EAVL_cTree.h"""
 .sp
-.BI "EAVLc_pathelement_t* (EAVLc_cbPathe)(unsigned int " index ","
+.BI "EAVLc_pathelement_t* (*EAVLc_cbPathe)(unsigned int " index ","
 .in +5n
 .BI "unsigned int " param ", void* " cbdata ");"
 .in
