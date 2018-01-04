@@ -1,6 +1,6 @@
 # (Not so) simple make file
 
-#  Copyright (c) 2017, Raymond S Brand
+#  Copyright (c) 2018, Raymond S Brand
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
