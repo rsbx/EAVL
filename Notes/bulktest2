@@ -109,7 +109,7 @@ printf "%8d: %8d %8d %8d\n", $count, $levels, $base, $delta;
 				$next_fract += $delta;
 #				$next_fract &= ($lower_ints<<1)-1;
 				$next_fract += $delta;
-				$next_fract &= ($lower_ints<<1)-1;	
+				$next_fract &= ($lower_ints<<1)-1;
 
 				$lower_start = $lower_next;
 				}

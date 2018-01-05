@@ -63,7 +63,7 @@
 		{							\
 		PUBLIC(pathelement_t)*		TPE;			\
 									\
-		CB_PATHE_ADDR((INDEX), (CB), (CBDATA), EAVL_CALLBACK, TPE);    \
+		CB_PATHE_ADDR((INDEX), (CB), (CBDATA), EAVL_CALLBACK, TPE);	\
 		*TPE = (VAL);						\
 		} while (0)
 

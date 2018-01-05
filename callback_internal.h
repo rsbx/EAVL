@@ -358,7 +358,7 @@
 					return EAVL_CALLBACK;		\
 				}					\
 			}						\
-		 } while (0)
+		} while (0)
 
 
 #endif	/* CHECKS_AVAILABLE & EAVL_CHECK_CALLBACK */
