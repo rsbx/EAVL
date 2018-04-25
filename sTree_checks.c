@@ -130,18 +130,6 @@ static int PRIVATE(Validate_Tree_Recurse)(
 		void*			cbdata,
 		int*			heightp,
 		EAVLs_node_t**		myinterval
-		);
-
-
-static int PRIVATE(Validate_Tree_Recurse)(
-		EAVLs_node_t*		node,
-		EAVLs_node_t*		fenceL,
-		EAVLs_node_t*		fenceR,
-		EAVLs_cbCompare_t	compare,
-		EAVLs_cbVerify_t*	verifyp,
-		void*			cbdata,
-		int*			heightp,
-		EAVLs_node_t**		myinterval
 		)
 	{
 	int			result;

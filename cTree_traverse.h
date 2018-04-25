@@ -49,7 +49,7 @@
 #include "naming_internal.h"
 
 
-#define	ORDER_MASK_PRE		(1u<<EAVL_ORDER_PRE)
+#define ORDER_MASK_PRE		(1u<<EAVL_ORDER_PRE)
 #define ORDER_MASK_IN		(1u<<EAVL_ORDER_IN)
 #define ORDER_MASK_POST		(1u<<EAVL_ORDER_POST)
 

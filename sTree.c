@@ -521,7 +521,7 @@ int PUBLIC(Next)(
 
 		case EAVL_ORDER_PRE:
 			/* try to move OTHER(DIR) if not move DIR */
-			if ((prev =GET_CHILD(curr, other)) || (prev = GET_CHILD(curr, dir)))
+			if ((prev = GET_CHILD(curr, other)) || (prev = GET_CHILD(curr, dir)))
 				{
 				PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, curr);
 				curr = prev;
@@ -612,7 +612,7 @@ int PUBLIC(Fixup)(
 	}
 
 
-static void PRIVATE(init)(
+static void PRIVATE(load_init)(
 		void**			nodep,
 		unsigned int		nodeindex
 		)
@@ -621,7 +621,7 @@ static void PRIVATE(init)(
 	}
 
 
-static void PRIVATE(setchild)(
+static void PRIVATE(load_setchild)(
 		void**			nodep,
 		unsigned int		parentindex,
 		unsigned int		childindex,
@@ -636,7 +636,7 @@ static void PRIVATE(setchild)(
 	}
 
 
-static void PRIVATE(setbal)(
+static void PRIVATE(load_setbal)(
 		void**			nodep,
 		unsigned int		nodeindex,
 		EAVL_dir_t		bal
@@ -649,7 +649,7 @@ static void PRIVATE(setbal)(
 	}
 
 
-static int PRIVATE(fixup)(
+static int PRIVATE(load_fixup)(
 		void**			nodep,
 		unsigned int		nodeindex,
 		FOREIGN(_, load_cbFixup_t)	fixup,
@@ -672,10 +672,10 @@ static int PRIVATE(fixup)(
 
 static FOREIGN(_, load_cbset_t) PRIVATE(load_cbset) =
 	{
-	&PRIVATE(init),
-	&PRIVATE(setchild),
-	&PRIVATE(setbal),
-	&PRIVATE(fixup)
+	&PRIVATE(load_init),
+	&PRIVATE(load_setchild),
+	&PRIVATE(load_setbal),
+	&PRIVATE(load_fixup)
 	};
 
 
@@ -1028,7 +1028,7 @@ int PUBLIC(Insert)(
 			}						\
 									\
 		SET_CHILD((pA), (B), TdirA);				\
-		SET_CHILD(((pB) != (A))? (pB) : (B), (A), TdirB);	\
+		SET_CHILD(((pB) != (A)) ? (pB) : (B), (A), TdirB);	\
 									\
 		TdirA = GET_BAL((A));					\
 		SET_BAL((A), GET_BAL((B)));				\

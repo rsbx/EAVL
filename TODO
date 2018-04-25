@@ -43,6 +43,6 @@ DONE * Documentation.
 
 
 REJECTED * Return callback error results to calling code.
-	Callbacks already have a means to returing more specific error codes in
+	Callbacks already have a means to return more specific error codes in
 	the callback data.
 
