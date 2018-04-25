@@ -902,13 +902,13 @@ int PUBLIC(Insert)(
 	}
 
 
-#define SWAP_NODES(A, B, T)						\
-	/* A and B are never NULL */					\
+#define SWAP_NODES(A, pA, B, pB, T)					\
+	/* A, pA, B, and pB are never NULL */				\
 	/* A is NOT a child of B */					\
 	do								\
 		{							\
-		EAVL_dir_t		TdirA = SID(GET_PARENT((A)), (A));	\
-		EAVL_dir_t		TdirB = SID(GET_PARENT((B)), (B));	\
+		EAVL_dir_t		TdirA = SID((pA), (A));		\
+		EAVL_dir_t		TdirB = SID((pB), (B));		\
 									\
 		(T) = GET_CHILD((A), 0);				\
 		SET_CHILD((A), GET_CHILD((B), 0), 0);			\
@@ -924,9 +924,8 @@ int PUBLIC(Insert)(
 			SET_CHILD((B), (T), 1);				\
 			}						\
 									\
-		(T) = GET_PARENT((B));					\
-		SET_CHILD(GET_PARENT((A)), (B), TdirA);			\
-		SET_CHILD(((T) != (A)) ? (T) : (B), (A), TdirB);	\
+		SET_CHILD((pA), (B), TdirA);				\
+		SET_CHILD(((pB) != (A)) ? (pB) : (B), (A), TdirB);	\
 									\
 		TdirA = GET_BAL((A));					\
 		SET_BAL((A), GET_BAL((B)));				\
@@ -955,6 +954,9 @@ int PRIVATE(remove)(
 	if (GET_CHILD(del_node, other))
 		{
 		EAVLp_node_t*		curr;
+		EAVLp_node_t*		curr_parent;
+		EAVLp_node_t*		del_node_parent;
+
 		// Two children
 		// swap with adjacent on long side or LEFT: Adjacent(bal & 0x1)
 
@@ -967,17 +969,19 @@ int PRIVATE(remove)(
 			curr = T;
 			}
 
-		SWAP_NODES(del_node, curr, T);
+		curr_parent = GET_PARENT(curr);
+		del_node_parent = GET_PARENT(del_node);
+
+		SWAP_NODES(del_node, del_node_parent, curr, curr_parent, T);
 		NODE_FIXUP(curr, 1, fixup, cbdata);
 
-		T = GET_PARENT(curr);
-		if (&root == T)
+		if (&root == del_node_parent)
 			{
 			*rootp = curr;
 			}
 		else
 			{
-			NODE_FIXUP(T, 1, fixup, cbdata);
+			NODE_FIXUP(del_node_parent, 1, fixup, cbdata);
 			}
 
 		// del_node now has 1 or no children
