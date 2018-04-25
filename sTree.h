@@ -66,13 +66,14 @@ int PRIVATE(Path_match)(
 		(NODE)->EAVLnode.child[1] = -1u;			\
 		} while (0)
 
-#define NODE_FIXUP(NODE, FIXUP, CBDATA)					\
+#define NODE_FIXUP(NODE, FORCE, FIXUP, CBDATA)				\
 	do								\
 		{							\
 		CB_FIXUP(						\
 				(NODE),					\
 				GET_CHILD((NODE), 0),			\
 				GET_CHILD((NODE), 1),			\
+				(FORCE),				\
 				(FIXUP),				\
 				(CBDATA)				\
 				);					\

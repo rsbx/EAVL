@@ -535,7 +535,7 @@ int PUBLIC(Fixup)(
 
 	while (fixup && curr)
 		{
-		NODE_FIXUP(curr, fixup, cbdata);
+		NODE_FIXUP(curr, 0, fixup, cbdata);
 		curr = GET_PARENT(curr);
 		}
 
@@ -595,6 +595,7 @@ static int PRIVATE(load_fixup)(
 			((EAVLp_node_t**)nodep)[nodeindex],
 			GET_CHILD(((EAVLp_node_t**)nodep)[nodeindex], DIR_LEFT),
 			GET_CHILD(((EAVLp_node_t**)nodep)[nodeindex], DIR_RIGHT),
+			1,
 			cbfixup,
 			cbdata
 			);
@@ -753,7 +754,7 @@ int PRIVATE(insert)(
 	if (!curr)
 		{
 		NODE_INIT(new_node);
-		NODE_FIXUP(new_node, fixup, cbdata);
+		NODE_FIXUP(new_node, 1, fixup, cbdata);
 		*rootp = new_node;
 		*resultp = new_node;
 		return EAVL_OK;
@@ -782,7 +783,7 @@ int PRIVATE(insert)(
 	// dir === which child gets the new node
 
 	NODE_INIT(new_node);
-	NODE_FIXUP(new_node, fixup, cbdata);
+	NODE_FIXUP(new_node, 1, fixup, cbdata);
 	SET_CHILD(prev, new_node, dir);
 
 	NODE_INIT(&root);
@@ -804,12 +805,12 @@ int PRIVATE(insert)(
 		if (bal == DIR_NEITHER)			// Cases: 1,5
 			{
 			SET_BAL(prev, dir);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			}
 		else if (bal == other)			// Case: 2
 			{
 			SET_BAL(prev, DIR_NEITHER);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			prev = parent;
 			break;
 			}
@@ -821,16 +822,16 @@ int PRIVATE(insert)(
 				{
 				T = curr;
 				PRIVATE(rotate_single)(dir, parent, prev, curr);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(curr, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(curr, 1, fixup, cbdata);
 				}
 			else				// Case: 4
 				{
 				T = GET_CHILD(curr, other);
 				PRIVATE(rotate_double)(dir, parent, prev, curr, T);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(curr, fixup, cbdata);
-				NODE_FIXUP(T, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(curr, 1, fixup, cbdata);
+				NODE_FIXUP(T, 1, fixup, cbdata);
 				}
 
 			prev = parent;
@@ -843,7 +844,7 @@ int PRIVATE(insert)(
 
 	while (fixup && prev != &root)
 		{
-		NODE_FIXUP(prev, fixup, cbdata);
+		NODE_FIXUP(prev, 0, fixup, cbdata);
 		prev = GET_PARENT(prev);
 		}
 
@@ -967,7 +968,7 @@ int PRIVATE(remove)(
 			}
 
 		SWAP_NODES(del_node, curr, T);
-		NODE_FIXUP(curr, fixup, cbdata);
+		NODE_FIXUP(curr, 1, fixup, cbdata);
 
 		T = GET_PARENT(curr);
 		if (&root == T)
@@ -976,7 +977,7 @@ int PRIVATE(remove)(
 			}
 		else
 			{
-			NODE_FIXUP(T, fixup, cbdata);
+			NODE_FIXUP(T, 1, fixup, cbdata);
 			}
 
 		// del_node now has 1 or no children
@@ -1020,12 +1021,12 @@ int PRIVATE(remove)(
 		if (bal == dir)				// Case: 1
 			{
 			SET_BAL(prev, DIR_NEITHER);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			}
 		else if (bal == DIR_NEITHER)		// Case: 2
 			{
 			SET_BAL(prev, other);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			prev = parent;
 			break;
 			}
@@ -1040,17 +1041,17 @@ int PRIVATE(remove)(
 				{
 				S = B;
 				PRIVATE(rotate_single)(other, parent, prev, B);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(B, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(B, 1, fixup, cbdata);
 				}
 			else				// Case: 5
 				{
 				S = GET_CHILD(B, dir);
 
 				PRIVATE(rotate_double)(other, parent, prev, B, S);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(B, fixup, cbdata);
-				NODE_FIXUP(S, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(B, 1, fixup, cbdata);
+				NODE_FIXUP(S, 1, fixup, cbdata);
 				}
 			prev = S;
 
@@ -1067,7 +1068,7 @@ int PRIVATE(remove)(
 
 	while (fixup && prev != &root)
 		{
-		NODE_FIXUP(prev, fixup, cbdata);
+		NODE_FIXUP(prev, 0, fixup, cbdata);
 		prev = GET_PARENT(prev);
 		}
 

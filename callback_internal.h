@@ -116,7 +116,7 @@
 #if CHECKS_AVAILABLE & EAVL_CHECK_CALLBACK
 
 
-#define CB_FIXUP(NODE, CHILDL, CHILDR, CB, CBDATA)			\
+#define CB_FIXUP(NODE, CHILDL, CHILDR, FORCE, CB, CBDATA)		\
 	do								\
 		{							\
 		if ((CB))						\
@@ -135,7 +135,10 @@
 					break;				\
 									\
 				case EAVL_CB_FINISHED:			\
-					(CB) = NULL;			\
+					if (!(FORCE))			\
+						{			\
+						(CB) = NULL;		\
+						}			\
 					break;				\
 									\
 				default:				\
@@ -153,7 +156,7 @@
 #else
 
 
-#define CB_FIXUP(NODE, CHILDL, CHILDR, CB, CBDATA)			\
+#define CB_FIXUP(NODE, CHILDL, CHILDR, FORCE, CB, CBDATA)		\
 	do								\
 		{							\
 		if ((CB))						\
@@ -166,7 +169,9 @@
 					(CHILDR),			\
 					(CBDATA)			\
 					);				\
-			if (CB_fixup == EAVL_CB_FINISHED)		\
+			if (CB_fixup == EAVL_CB_FINISHED		\
+					&& !(FORCE)			\
+					)				\
 				{					\
 				(CB) = NULL;				\
 				}					\

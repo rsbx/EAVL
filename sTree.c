@@ -602,7 +602,7 @@ int PUBLIC(Fixup)(
 
 	while (fixup && curr)
 		{
-		NODE_FIXUP(curr, fixup, cbdata);
+		NODE_FIXUP(curr, 0, fixup, cbdata);
 		PATHE_GET_SAFE(--pathlen, cbpathe, cbdata, curr);
 		}
 
@@ -662,6 +662,7 @@ static int PRIVATE(load_fixup)(
 			((EAVLs_node_t**)nodep)[nodeindex],
 			GET_CHILD(((EAVLs_node_t**)nodep)[nodeindex], DIR_LEFT),
 			GET_CHILD(((EAVLs_node_t**)nodep)[nodeindex], DIR_RIGHT),
+			1,
 			cbfixup,
 			cbdata
 			);
@@ -826,7 +827,7 @@ static int PRIVATE(insert)(
 	if (!curr)
 		{
 		NODE_INIT(new_node);
-		NODE_FIXUP(new_node, fixup, cbdata);
+		NODE_FIXUP(new_node, 1, fixup, cbdata);
 		*rootp = new_node;
 		*resultp = new_node;
 		return EAVL_OK;
@@ -856,7 +857,7 @@ static int PRIVATE(insert)(
 	// dir === which child gets the new node
 
 	NODE_INIT(new_node);
-	NODE_FIXUP(new_node, fixup, cbdata);
+	NODE_FIXUP(new_node, 1, fixup, cbdata);
 	SET_CHILD(prev, new_node, dir);
 	pathlensave = *pathlenp;
 
@@ -882,12 +883,12 @@ static int PRIVATE(insert)(
 		if (bal == DIR_NEITHER)			// Cases: 1,5
 			{
 			SET_BAL(prev, dir);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			}
 		else if (bal == other)			// Case: 2
 			{
 			SET_BAL(prev, DIR_NEITHER);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			prev = parent;
 			break;
 			}
@@ -899,8 +900,8 @@ static int PRIVATE(insert)(
 				{
 				T = curr;
 				PRIVATE(rotate_single)(dir, parent, prev, curr);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(curr, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(curr, 1, fixup, cbdata);
 				pathlensave--;
 				PATHE_SHIFT((*pathlenp)+2, pathlensave, cbpathe, cbdata);
 				}
@@ -908,9 +909,9 @@ static int PRIVATE(insert)(
 				{
 				T = GET_CHILD(curr, other);
 				PRIVATE(rotate_double)(dir, parent, prev, curr, T);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(curr, fixup, cbdata);
-				NODE_FIXUP(T, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(curr, 1, fixup, cbdata);
+				NODE_FIXUP(T, 1, fixup, cbdata);
 				pathlensave--;
 				PATHE_SHIFT((*pathlenp)+2, pathlensave, cbpathe, cbdata);
 				PATHE_SET_DANGER((*pathlenp)+1, cbpathe, cbdata, T);
@@ -941,7 +942,7 @@ static int PRIVATE(insert)(
 
 	while (fixup && prev != &root)
 		{
-		NODE_FIXUP(prev, fixup, cbdata);
+		NODE_FIXUP(prev, 0, fixup, cbdata);
 		PATHE_GET_DANGER(--(*pathlenp), cbpathe, cbdata, prev);
 		}
 
@@ -1084,7 +1085,7 @@ static int PRIVATE(remove)(
 		PATHE_SET_DANGER(del_node_pathlen, cbpathe, cbdata, curr);
 		// PATHE_SET_DANGER(pathlen, cbpathe, cbdata, del_node);
 
-		NODE_FIXUP(curr, fixup, cbdata);
+		NODE_FIXUP(curr, 1, fixup, cbdata);
 
 		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, T);
 		if (&root == T)
@@ -1093,7 +1094,7 @@ static int PRIVATE(remove)(
 			}
 		else
 			{
-			NODE_FIXUP(T, fixup, cbdata);
+			NODE_FIXUP(T, 1, fixup, cbdata);
 			}
 
 		// del_node now has 1 or no children
@@ -1138,12 +1139,12 @@ static int PRIVATE(remove)(
 		if (bal == dir)				// Case: 1
 			{
 			SET_BAL(prev, DIR_NEITHER);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			}
 		else if (bal == DIR_NEITHER)		// Case: 2
 			{
 			SET_BAL(prev, other);
-			NODE_FIXUP(prev, fixup, cbdata);
+			NODE_FIXUP(prev, 1, fixup, cbdata);
 			prev = parent;
 			break;
 			}
@@ -1158,17 +1159,17 @@ static int PRIVATE(remove)(
 				{
 				S = B;
 				PRIVATE(rotate_single)(other, parent, prev, B);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(B, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(B, 1, fixup, cbdata);
 				}
 			else				// Case: 5
 				{
 				S = GET_CHILD(B, dir);
 
 				PRIVATE(rotate_double)(other, parent, prev, B, S);
-				NODE_FIXUP(prev, fixup, cbdata);
-				NODE_FIXUP(B, fixup, cbdata);
-				NODE_FIXUP(S, fixup, cbdata);
+				NODE_FIXUP(prev, 1, fixup, cbdata);
+				NODE_FIXUP(B, 1, fixup, cbdata);
+				NODE_FIXUP(S, 1, fixup, cbdata);
 				}
 			prev = S;
 
@@ -1185,7 +1186,7 @@ static int PRIVATE(remove)(
 
 	while (fixup && prev != &root)
 		{
-		NODE_FIXUP(prev, fixup, cbdata);
+		NODE_FIXUP(prev, 0, fixup, cbdata);
 		PATHE_GET_DANGER(--pathlen, cbpathe, cbdata, prev);
 		}
 
