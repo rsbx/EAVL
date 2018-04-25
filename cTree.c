@@ -93,10 +93,10 @@ int PUBLIC(Tree_Init)(
 	}
 
 
-#define NODE_DUP(NODE, PARENT, CB, CBDATA, FORCE)			\
+#define NODE_DUP(NODE, PARENT, CB, CBDATA)				\
 	do								\
 		{							\
-		if ((FORCE) || GET_REFS((NODE)))			\
+		if (GET_REFS((NODE)))					\
 			{						\
 			EAVLc_node_t*		ND_T0;			\
 			EAVLc_node_t*		ND_T1;			\
@@ -138,7 +138,7 @@ static int PRIVATE(tree_split)(
 		NODE_INIT(&fakeroot);
 		SET_CHILD(&fakeroot, *rootp, DIR_LEFT);
 
-		NODE_DUP(*rootp, &fakeroot, dup, cbdata, 0);
+		NODE_DUP(*rootp, &fakeroot, dup, cbdata);
 		if (pathlen == 1)
 			{
 			*targetp = *rootp;
@@ -160,13 +160,13 @@ static int PRIVATE(tree_split)(
 			{
 			prev = curr;
 			PATHE_GET_DANGER(pathpos, cbpathe, cbdata, curr);
-			NODE_DUP(curr, prev, dup, cbdata, 0);
+			NODE_DUP(curr, prev, dup, cbdata);
 			PATHE_SET_DANGER(pathpos, cbpathe, cbdata, curr);
 			pathpos++;
 			}
 
 		prev = curr;
-		NODE_DUP(*targetp, prev, dup, cbdata, 0);
+		NODE_DUP(*targetp, prev, dup, cbdata);
 		}
 
 	return EAVL_OK;
@@ -1255,20 +1255,20 @@ static int PRIVATE(remove_split)(
 
 			B = GET_CHILD(curr, other);
 			bal = GET_BAL(B);
-			NODE_DUP(B, curr, dup, cbdata, 0);
+			NODE_DUP(B, curr, dup, cbdata);
 			if (bal != dir)			// Cases: 3,4
 				{
 //				PRIVATE(rotate_single)(other, parent, curr, B);
-//				NODE_DUP(B, curr, dup, cbdata, 0);
+//				NODE_DUP(B, curr, dup, cbdata);
 				}
 			else				// Case: 5
 				{
 //				C = GET_CHILD(B, dir);
 //				PRIVATE(rotate_double)(other, parent, curr, B, C);
-//				NODE_DUP(B, curr, dup, cbdata, 0);
+//				NODE_DUP(B, curr, dup, cbdata);
 
 				C = GET_CHILD(B, dir);
-				NODE_DUP(C, B, dup, cbdata, 0);
+				NODE_DUP(C, B, dup, cbdata);
 				}
 
 			if (bal == DIR_NEITHER)		// Case: 4
