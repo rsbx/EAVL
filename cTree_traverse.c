@@ -90,6 +90,7 @@ int PRIVATE(traverse)(
 		EAVLc_node_t*		next;
 		EAVLc_node_t*		T0 = EAVLc_GET_CHILD(node, other);
 		EAVLc_node_t*		T1 = EAVLc_GET_CHILD(node, dir);
+		EAVLc_node_t*		up;
 		unsigned int		limiter = 0;
 
 		if (T1 && prev == T1)
@@ -115,6 +116,8 @@ int PRIVATE(traverse)(
 			next = T1;
 			}
 
+		PATHE_GET_SELECT(pathlen-1, cbpathe, cbdata, up, safe);
+
 		if (coverage)
 			{
 			CB_TRAVERSE(node, coverage, safe, callback, cbtdata, limiter, result);
@@ -128,7 +131,8 @@ int PRIVATE(traverse)(
 			}
 		else
 			{
-			PATHE_GET_SELECT(--pathlen, cbpathe, cbdata, node, safe);
+			pathlen--;
+			node = up;
 			}
 		}
 
