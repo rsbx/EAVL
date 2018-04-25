@@ -942,8 +942,9 @@ int PRIVATE(remove)(
 		)
 	{
 	EAVLp_node_t*		prev;
-	EAVLp_node_t		root;
+	EAVLp_node_t*		del_node_parent = NULL;
 	EAVLp_node_t*		T;
+	EAVLp_node_t		root;
 	EAVL_dir_t		dir = GET_BAL(del_node) & 0x1u;
 	EAVL_dir_t		other = DIR_OTHER(dir);
 	int			result = EAVL_OK;
@@ -955,7 +956,6 @@ int PRIVATE(remove)(
 		{
 		EAVLp_node_t*		swap_node;
 		EAVLp_node_t*		swap_node_parent;
-		EAVLp_node_t*		del_node_parent;
 
 		// Two children
 		// swap with adjacent on long side or LEFT: Adjacent(bal & 0x1)
@@ -973,15 +973,10 @@ int PRIVATE(remove)(
 		del_node_parent = GET_PARENT(del_node);
 
 		SWAP_NODES(del_node, del_node_parent, swap_node, swap_node_parent, T);
-		NODE_FIXUP(swap_node, 1, fixup, cbdata);
 
 		if (&root == del_node_parent)
 			{
 			*rootp = swap_node;
-			}
-		else
-			{
-			NODE_FIXUP(del_node_parent, 1, fixup, cbdata);
 			}
 
 		// del_node now has 1 or no children
@@ -1021,6 +1016,11 @@ int PRIVATE(remove)(
 		bal = GET_BAL(prev);
 		other = DIR_OTHER(dir);
 		parent = GET_PARENT(prev);
+
+		if (prev == del_node_parent)
+			{
+			del_node_parent = NULL;
+			}
 
 		if (bal == dir)				// Case: 1
 			{
@@ -1068,6 +1068,15 @@ int PRIVATE(remove)(
 
 		dir = SID(parent, prev);
 		prev = parent;
+		}
+
+	if (del_node_parent)
+		{
+		while (prev != &root && prev != del_node_parent)
+			{
+			NODE_FIXUP(prev, 1, fixup, cbdata);
+			prev = GET_PARENT(prev);
+			}
 		}
 
 	while (fixup && prev != &root)

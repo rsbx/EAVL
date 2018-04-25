@@ -1298,8 +1298,9 @@ static int PRIVATE(remove)(
 		)
 	{
 	EAVLc_node_t*		prev;
-	EAVLc_node_t		root;
+	EAVLc_node_t*		del_node_parent = NULL;
 	EAVLc_node_t*		T;
+	EAVLc_node_t		root;
 	EAVL_dir_t		dir = GET_BAL(*del_nodep) & 0x1u;
 	EAVL_dir_t		other = DIR_OTHER(dir);
 	unsigned int		del_node_pathlen = pathlen;
@@ -1312,7 +1313,6 @@ static int PRIVATE(remove)(
 		{
 		EAVLc_node_t*		swap_node;
 		EAVLc_node_t*		swap_node_parent;
-		EAVLc_node_t*		del_node_parent;
 
 		// Two children
 		// swap with adjacent on long side or LEFT: Adjacent(bal & 0x1)
@@ -1352,16 +1352,10 @@ static int PRIVATE(remove)(
 		PATHE_SET_DANGER(del_node_pathlen, cbpathe, cbdata, swap_node);
 		// PATHE_SET_DANGER(pathlen, cbpathe, cbdata, *del_nodep);
 
-		NODE_FIXUP(swap_node, 1, fixup, cbdata);
-
 		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, T);
 		if (&root == T)
 			{
 			*rootp = swap_node;
-			}
-		else
-			{
-			NODE_FIXUP(T, 1, fixup, cbdata);
 			}
 
 		// *del_nodep now has 1 or no children
@@ -1419,6 +1413,11 @@ static int PRIVATE(remove)(
 		other = DIR_OTHER(dir);
 		PATHE_GET_DANGER(--pathlen, cbpathe, cbdata, parent);
 
+		if (prev == del_node_parent)
+			{
+			del_node_parent = NULL;
+			}
+
 		if (bal == dir)				// Case: 1
 			{
 			SET_BAL(prev, DIR_NEITHER);
@@ -1465,6 +1464,15 @@ static int PRIVATE(remove)(
 
 		dir = SID(parent, prev);
 		prev = parent;
+		}
+
+	if (del_node_parent)
+		{
+		while (prev != &root && prev != del_node_parent)
+			{
+			NODE_FIXUP(prev, 1, fixup, cbdata);
+			PATHE_GET_DANGER(--pathlen, cbpathe, cbdata, prev);
+			}
 		}
 
 	while (fixup && prev != &root)
