@@ -953,31 +953,31 @@ int PRIVATE(remove)(
 
 	if (GET_CHILD(del_node, other))
 		{
-		EAVLp_node_t*		curr;
-		EAVLp_node_t*		curr_parent;
+		EAVLp_node_t*		swap_node;
+		EAVLp_node_t*		swap_node_parent;
 		EAVLp_node_t*		del_node_parent;
 
 		// Two children
 		// swap with adjacent on long side or LEFT: Adjacent(bal & 0x1)
 
 		prev = del_node;
-		curr = GET_CHILD(del_node, dir);	// Long or LEFT side
+		swap_node = GET_CHILD(del_node, dir);	// Long or LEFT side
 
-		while ((T = GET_CHILD(curr, other)))
+		while ((T = GET_CHILD(swap_node, other)))
 			{
-			prev = curr;
-			curr = T;
+			prev = swap_node;
+			swap_node = T;
 			}
 
-		curr_parent = GET_PARENT(curr);
+		swap_node_parent = GET_PARENT(swap_node);
 		del_node_parent = GET_PARENT(del_node);
 
-		SWAP_NODES(del_node, del_node_parent, curr, curr_parent, T);
-		NODE_FIXUP(curr, 1, fixup, cbdata);
+		SWAP_NODES(del_node, del_node_parent, swap_node, swap_node_parent, T);
+		NODE_FIXUP(swap_node, 1, fixup, cbdata);
 
 		if (&root == del_node_parent)
 			{
-			*rootp = curr;
+			*rootp = swap_node;
 			}
 		else
 			{

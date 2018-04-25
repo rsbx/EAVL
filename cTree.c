@@ -1310,25 +1310,25 @@ static int PRIVATE(remove)(
 
 	if (GET_CHILD(*del_nodep, other))
 		{
-		EAVLc_node_t*		curr;
-		EAVLc_node_t*		curr_parent;
+		EAVLc_node_t*		swap_node;
+		EAVLc_node_t*		swap_node_parent;
 		EAVLc_node_t*		del_node_parent;
 
 		// Two children
 		// swap with adjacent on long side or LEFT: Adjacent(bal & 0x1)
 
 		PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, *del_nodep);
-		curr = GET_CHILD(*del_nodep, dir);	// Long or LEFT side
+		swap_node = GET_CHILD(*del_nodep, dir);	// Long or LEFT side
 
-		while ((T = GET_CHILD(curr, other)))
+		while ((T = GET_CHILD(swap_node, other)))
 			{
-			PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, curr);
-			curr = T;
+			PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, swap_node);
+			swap_node = T;
 			}
 
 		result = PRIVATE(remove_split)(
 				rootp,
-				&curr,
+				&swap_node,
 				pathlen,
 				dup,
 				cbpathe,
@@ -1344,20 +1344,20 @@ static int PRIVATE(remove)(
 
 		PATHE_SET_DANGER(0, cbpathe, cbdata, &root);
 
-		PATHE_GET_DANGER(pathlen-1, cbpathe, cbdata, curr_parent);
+		PATHE_GET_DANGER(pathlen-1, cbpathe, cbdata, swap_node_parent);
 		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, del_node_parent);
 		PATHE_GET_DANGER(del_node_pathlen, cbpathe, cbdata, *del_nodep);
 
-		SWAP_NODES(*del_nodep, del_node_parent, curr, curr_parent, T);
-		PATHE_SET_DANGER(del_node_pathlen, cbpathe, cbdata, curr);
+		SWAP_NODES(*del_nodep, del_node_parent, swap_node, swap_node_parent, T);
+		PATHE_SET_DANGER(del_node_pathlen, cbpathe, cbdata, swap_node);
 		// PATHE_SET_DANGER(pathlen, cbpathe, cbdata, *del_nodep);
 
-		NODE_FIXUP(curr, 1, fixup, cbdata);
+		NODE_FIXUP(swap_node, 1, fixup, cbdata);
 
 		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, T);
 		if (&root == T)
 			{
-			*rootp = curr;
+			*rootp = swap_node;
 			}
 		else
 			{
