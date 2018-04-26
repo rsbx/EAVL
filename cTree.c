@@ -145,7 +145,7 @@ static int PRIVATE(tree_split)(
 			}
 		else
 			{
-			PATHE_SET_DANGER(1, cbpathe, cbdata, *rootp);
+			PATHE_SET_SAFE(1, cbpathe, cbdata, *rootp);
 			}
 		}
 
@@ -159,9 +159,9 @@ static int PRIVATE(tree_split)(
 		while (pathpos < pathlen)
 			{
 			prev = curr;
-			PATHE_GET_DANGER(pathpos, cbpathe, cbdata, curr);
+			PATHE_GET_SAFE(pathpos, cbpathe, cbdata, curr);
 			NODE_DUP(curr, prev, dup, cbdata);
-			PATHE_SET_DANGER(pathpos, cbpathe, cbdata, curr);
+			PATHE_SET_SAFE(pathpos, cbpathe, cbdata, curr);
 			pathpos++;
 			}
 
@@ -1279,7 +1279,7 @@ static int PRIVATE(remove_split)(
 			}
 
 		prev = curr;
-		PATHE_GET_DANGER(--pathlen, cbpathe, cbdata, curr);
+		PATHE_GET_SAFE(--pathlen, cbpathe, cbdata, curr);
 		}
 
 	return result;
@@ -1307,7 +1307,6 @@ static int PRIVATE(remove)(
 	int			result = EAVL_OK;
 
 	NODE_INIT(&root);
-	SET_CHILD(&root, *rootp, DIR_LEFT);
 
 	if (GET_CHILD(*del_nodep, other))
 		{
@@ -1335,31 +1334,25 @@ static int PRIVATE(remove)(
 				cbdata
 				);
 		// Fix context->recent
-		PATHE_GET_DANGER(del_node_pathlen, cbpathe, cbdata, *del_nodep);
+		PATHE_GET_SAFE(del_node_pathlen, cbpathe, cbdata, *del_nodep);
 
 		if (result != EAVL_OK)
 			{
 			return result;
 			}
 
-		PATHE_SET_DANGER(0, cbpathe, cbdata, &root);
+		SET_CHILD(&root, *rootp, DIR_LEFT);
+		PATHE_SET_SAFE(0, cbpathe, cbdata, &root);
 
 		PATHE_GET_DANGER(pathlen-1, cbpathe, cbdata, swap_node_parent);
 		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, del_node_parent);
-		PATHE_GET_DANGER(del_node_pathlen, cbpathe, cbdata, *del_nodep);
-
 		SWAP_NODES(*del_nodep, del_node_parent, swap_node, swap_node_parent, T);
 		PATHE_SET_DANGER(del_node_pathlen, cbpathe, cbdata, swap_node);
-		// PATHE_SET_DANGER(pathlen, cbpathe, cbdata, *del_nodep);
 
-		PATHE_GET_DANGER(del_node_pathlen-1, cbpathe, cbdata, T);
-		if (&root == T)
+		if (del_node_parent == &root)
 			{
 			*rootp = swap_node;
 			}
-
-		// *del_nodep now has 1 or no children
-		//	child will be "dir" child: (GET_BAL(*del_nodep) & 0x1)
 		}
 	else
 		{
@@ -1375,12 +1368,14 @@ static int PRIVATE(remove)(
 			{
 			return result;
 			}
+
+		// One child or no children
+		SET_CHILD(&root, *rootp, DIR_LEFT);
+		PATHE_SET_SAFE(0, cbpathe, cbdata, &root);
 		}
 
-	// One child or no children
-
-	SET_CHILD(&root, *rootp, DIR_LEFT);
-	PATHE_SET_DANGER(0, cbpathe, cbdata, &root);
+	// del_node now has 1 or no children
+	//	child will be "dir" child: (GET_BAL(del_node) & 0x1)
 
 	T = GET_CHILD(*del_nodep, dir);
 	PATHE_GET_DANGER(pathlen-1, cbpathe, cbdata, prev);

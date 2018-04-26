@@ -950,7 +950,6 @@ int PRIVATE(remove)(
 	int			result = EAVL_OK;
 
 	NODE_INIT(&root);
-	SET_CHILD(&root, *rootp, DIR_LEFT);
 
 	if (GET_CHILD(del_node, other))
 		{
@@ -965,25 +964,28 @@ int PRIVATE(remove)(
 
 		while ((T = GET_CHILD(swap_node, other)))
 			{
-			prev = swap_node;
 			swap_node = T;
 			}
 
+		SET_CHILD(&root, *rootp, DIR_LEFT);
+
 		swap_node_parent = GET_PARENT(swap_node);
 		del_node_parent = GET_PARENT(del_node);
-
 		SWAP_NODES(del_node, del_node_parent, swap_node, swap_node_parent, T);
 
-		if (&root == del_node_parent)
+		if (del_node_parent == &root)
 			{
 			*rootp = swap_node;
 			}
-
-		// del_node now has 1 or no children
-		//	child will be "dir" child: (GET_BAL(del_node) & 0x1)
+		}
+	else
+		{
+		// One child or no children
+		SET_CHILD(&root, *rootp, DIR_LEFT);
 		}
 
-	// One child or no children
+	// del_node now has 1 or no children
+	//	child will be "dir" child: (GET_BAL(del_node) & 0x1)
 
 	T = GET_CHILD(del_node, dir);
 	prev = GET_PARENT(del_node);
