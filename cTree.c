@@ -756,15 +756,6 @@ int PUBLIC(Fixup)(
 	}
 
 
-static void PRIVATE(load_init)(
-		void**			nodep,
-		unsigned int		nodeindex
-		)
-	{
-	NODE_INIT(((EAVLc_node_t**)nodep)[nodeindex]);
-	}
-
-
 static void PRIVATE(load_setchild)(
 		void**			nodep,
 		unsigned int		parentindex,
@@ -817,7 +808,6 @@ static int PRIVATE(load_fixup)(
 
 static FOREIGN(_, load_cbset_t) PRIVATE(load_cbset) =
 	{
-	&PRIVATE(load_init),
 	&PRIVATE(load_setchild),
 	&PRIVATE(load_setbal),
 	&PRIVATE(load_fixup)
@@ -831,7 +821,8 @@ int PUBLIC(Load)(
 		)
 	{
 	unsigned int		rootindex;
-	int			result = EAVL_OK;
+	unsigned int		i;
+	int			result;
 
 	CHECK_PARAM_NON_NULL(context);
 
@@ -849,6 +840,12 @@ int PUBLIC(Load)(
 	CHECK_PARAM_NON_NULL(nodes);
 	CHECK_NODES_ALIGN(count, nodes);
 	CHECK_NODES_ORDER(context, count, nodes);
+
+	for (i=0; i<count; i++)
+		{
+		NODE_INIT(nodes[i]);
+		NODE_FIXUP(nodes[i], 1, context->tree->cbset->fixup, context->common.cbdata);
+		}
 
 	result = FOREIGN(_, load)(
 			&rootindex,

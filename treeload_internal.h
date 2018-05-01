@@ -48,10 +48,6 @@
 #include "naming_internal.h"
 
 
-typedef void (*FOREIGN(_, load_init_t))(
-		void**			nodep,
-		unsigned int		nodeindex
-		);
 typedef void (*FOREIGN(_, load_setchild_t))(
 		void**			nodep,
 		unsigned int		parentindex,
@@ -77,7 +73,6 @@ typedef int (*FOREIGN(_, load_fixup_t))(
 		);
 
 typedef struct {
-		FOREIGN(_, load_init_t)		init;
 		FOREIGN(_, load_setchild_t)	setchild;
 		FOREIGN(_, load_setbal_t)	setbal;
 		FOREIGN(_, load_fixup_t)	fixup;

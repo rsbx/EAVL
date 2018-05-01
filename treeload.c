@@ -95,12 +95,6 @@ int PRIVATE(load)(
 		return EAVL_ERROR_PARAMETER;
 		}
 
-	for (i=0; i<count; i++)
-		{
-		LOAD_INIT(nodep, i, cbset->init);
-		LOAD_FIXUP(nodep, i, cbset->fixup, fixup, cbdata, result);
-		}
-
 	while ((lower_ints<<1) < (count+1))
 		{
 		lower_ints <<= 1;

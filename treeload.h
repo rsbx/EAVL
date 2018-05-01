@@ -44,9 +44,6 @@
 #define _TREELOAD_H 1
 
 
-#define LOAD_INIT(NODES, NODE, CB)					\
-		(*(CB))((NODES), (NODE))
-
 #define LOAD_SETCHILD(NODES, PARENT, CHILD, DIR, CB)			\
 		(*(CB))((NODES), (PARENT), (CHILD), (DIR))
 
