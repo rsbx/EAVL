@@ -197,7 +197,7 @@ int PRIVATE(load)(
 					}
 				else
 					{
-					LOAD_SETBAL(nodep, upper_mid, smaller == (lower_size) ? DIR_LEFT : DIR_RIGHT, cbset->setbal);
+					LOAD_SETBAL(nodep, upper_mid, (smaller == lower_size) ? DIR_LEFT : DIR_RIGHT, cbset->setbal);
 					}
 				}
 
@@ -225,4 +225,4 @@ int PRIVATE(load)(
 	}
 
 
-/* common.c */
+/* treeload.c */
