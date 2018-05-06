@@ -127,12 +127,14 @@ struct node
 struct cbdata
 	{
 	tree_track_t*		tracker;
+	params_t*		params;
 	};
 
 #define CBDATA_INIT(CBDATA)						\
 	do								\
 		{							\
 		(CBDATA)->tracker	= NULL;				\
+		(CBDATA)->params	= NULL;				\
 		} while (0)
 
 struct tree_track
@@ -477,14 +479,14 @@ static cbdata_t* create_cbData(
 	{
 	cbdata_t*		cbdata;
 
-	QUIET_UNUSED(params);
-
 	if (!(cbdata = (cbdata_t*)malloc(sizeof(cbdata_t))))
 		{
 		return NULL;
 		}
 
 	CBDATA_INIT(cbdata);
+
+	cbdata->params = params;
 
 	return cbdata;
 	}
@@ -739,8 +741,6 @@ static int ecb_verify(
 	hash_t			hash = 0;
 	hash_ctx_t		hctx;
 
-	QUIET_UNUSED(cbdata);
-
 //	printf("Verify::  ");
 //	CBNODEPRINT(eavl_node, "");
 //	CBNODEPRINTHW(eavl_node);
@@ -797,36 +797,39 @@ printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 		return EAVL_ERROR;
 		}
-	hash_init(&hctx);
-	hash_update(
-			&hctx,
-			&container_of(eavl_node, node_t, node)->key,
-			sizeof(unsigned int)
-			);
-	hash_update(
-			&hctx,
-			&container_of(eavl_node, node_t, node)->value,
-			sizeof(unsigned int)
-			);
-	hash_update(
-			&hctx,
-			(childL)
-				? &container_of(childL, node_t, node)->hash
-				: &hash,
-			sizeof(hash_t)
-			);
-	hash_update(
-			&hctx,
-			(childR)
-				? &container_of(childR, node_t, node)->hash
-				: &hash,
-			sizeof(hash_t)
-			);
-	hash_final(&hctx, &hash);
-	if (hash_cmp(&container_of(eavl_node, node_t, node)->hash, &hash))
+	if (!((cbdata_t*)cbdata)->params->timing)
 		{
+		hash_init(&hctx);
+		hash_update(
+				&hctx,
+				&container_of(eavl_node, node_t, node)->key,
+				sizeof(unsigned int)
+				);
+		hash_update(
+				&hctx,
+				&container_of(eavl_node, node_t, node)->value,
+				sizeof(unsigned int)
+				);
+		hash_update(
+				&hctx,
+				(childL)
+					? &container_of(childL, node_t, node)->hash
+					: &hash,
+				sizeof(hash_t)
+				);
+		hash_update(
+				&hctx,
+				(childR)
+					? &container_of(childR, node_t, node)->hash
+					: &hash,
+				sizeof(hash_t)
+				);
+		hash_final(&hctx, &hash);
+		if (hash_cmp(&container_of(eavl_node, node_t, node)->hash, &hash))
+			{
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
-		return EAVL_ERROR;
+			return EAVL_ERROR;
+			}
 		}
 
 	return EAVL_CB_OK;
@@ -843,8 +846,6 @@ static int ecb_fixup(
 	{
 	hash_t			hash = 0;
 	hash_ctx_t		hctx;
-
-	QUIET_UNUSED(cbdata);
 
 //	printf("ecb_fixup::  ");
 //	CBNODEPRINT(eavl_node, "");
@@ -890,35 +891,38 @@ static int ecb_fixup(
 				: 0
 				)
 			;
-	hash_init(&hctx);
-	hash_update(
-			&hctx,
-			&container_of(eavl_node, node_t, node)->key,
-			sizeof(unsigned int)
-			);
-	hash_update(
-			&hctx,
-			&container_of(eavl_node, node_t, node)->value,
-			sizeof(unsigned int)
-			);
-	hash_update(
-			&hctx,
-			(childL)
-				? &container_of(childL, node_t, node)->hash
-				: &hash,
-			sizeof(hash_t)
-			);
-	hash_update(
-			&hctx,
-			(childR)
-				? &container_of(childR, node_t, node)->hash
-				: &hash,
-			sizeof(hash_t)
-			);
-	hash_final(
-			&hctx,
-			&container_of(eavl_node, node_t, node)->hash
-			);
+	if (!((cbdata_t*)cbdata)->params->timing)
+		{
+		hash_init(&hctx);
+		hash_update(
+				&hctx,
+				&container_of(eavl_node, node_t, node)->key,
+				sizeof(unsigned int)
+				);
+		hash_update(
+				&hctx,
+				&container_of(eavl_node, node_t, node)->value,
+				sizeof(unsigned int)
+				);
+		hash_update(
+				&hctx,
+				(childL)
+					? &container_of(childL, node_t, node)->hash
+					: &hash,
+				sizeof(hash_t)
+				);
+		hash_update(
+				&hctx,
+				(childR)
+					? &container_of(childR, node_t, node)->hash
+					: &hash,
+				sizeof(hash_t)
+				);
+		hash_final(
+				&hctx,
+				&container_of(eavl_node, node_t, node)->hash
+				);
+		}
 
 	return EAVL_CB_OK;
 	}
