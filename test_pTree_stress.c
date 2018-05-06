@@ -83,6 +83,9 @@ typedef struct node		node_t;
 typedef struct tree_track	tree_track_t;
 typedef struct master_track	master_track_t;
 typedef struct cbdata		cbdata_t;
+typedef uint32_t		hash_t;
+typedef uint32_t		hash_ctx_t;
+typedef	void			hash_data_t;
 typedef struct params		params_t;
 typedef unsigned int		order_mask_t;
 typedef int (cb_t)(EAVLp_node_t* node, order_mask_t cover, void* cbdata);
@@ -98,6 +101,7 @@ struct node
 	unsigned int		value;
 	unsigned int		sum;
 	EAVLp_node_t		node;
+	hash_t			hash;
 	};
 
 #define NODE_INIT(NODE)							\
@@ -117,6 +121,7 @@ struct node
 		(NODE)->weight	= -1u;					\
 		(NODE)->value	= -1u;					\
 		(NODE)->sum	= -1u;					\
+		hash_clear(&(NODE)->hash);				\
 		} while (0)
 
 struct cbdata
@@ -144,6 +149,7 @@ struct tree_track
 	unsigned int		weight;
 	unsigned int		sum;
 	unsigned int		found;
+	hash_t			hash;
 	};
 
 #define TREE_TRACK_CLEAR(TRACKER)					\
@@ -230,6 +236,88 @@ struct params
 		(PBLOCK)->verbose		= 0;			\
 		(PBLOCK)->now			= 0;			\
 		} while (0)
+
+
+static int hash_init(
+		hash_ctx_t*		ctx
+		)
+	{
+	*ctx = 0;
+
+	return 0;
+	}
+
+
+static int hash_clear(
+		hash_t*			hash
+		)
+	{
+	*hash = -1u;
+
+	return 0;
+	}
+
+
+static int hash_update(
+		hash_ctx_t*		ctx,
+		hash_data_t*		data,
+		size_t			count
+		)
+	{
+	uint32_t		crc = ~*ctx;
+	unsigned char*		current = (unsigned char*)data;
+
+	static uint32_t lut[16] =
+			{
+			0x00000000,0x1DB71064,0x3B6E20C8,0x26D930AC,
+			0x76DC4190,0x6B6B51F4,0x4DB26158,0x5005713C,
+			0xEDB88320,0xF00F9344,0xD6D6A3E8,0xCB61B38C,
+			0x9B64C2B0,0x86D3D2D4,0xA00AE278,0xBDBDF21C
+			};
+
+	while (count--)
+		{
+		crc = lut[(crc ^  *current      ) & 0x0F] ^ (crc >> 4);
+		crc = lut[(crc ^ (*current >> 4)) & 0x0F] ^ (crc >> 4);
+		current++;
+		}
+
+	*ctx = ~crc;
+
+	return 0;
+	}
+
+
+static int hash_final(
+		hash_ctx_t*		ctx,
+		hash_t*			hash
+		)
+	{
+	*hash = *ctx;
+	*ctx = -1u;
+
+	return 0;
+	}
+
+
+static int hash_cmp(
+		hash_t*			hash0,
+		hash_t*			hash1
+		)
+	{
+	return *hash0 != *hash1;
+	}
+
+
+#if 0
+static void hash_copy(
+		hash_t*			old,
+		hash_t*			new
+		)
+	{
+	*new = *old;
+	}
+#endif
 
 
 #define CALLBACK(NODE, COVER, CBP, CBDATA, LIMITER, RES)		\
@@ -524,11 +612,12 @@ static void tree_print(
 //			EAVLp_GET_BAL(root)
 //			);
 	printf("[a:%p b:%u]", (void*)root, EAVLp_GET_BAL(root));
-	printf("[h:%u w:%u v:%u s:%u]",
+	printf("[h:%u w:%u v:%u s:%u H:0x%08X]",
 			T->height,
 			T->weight,
 			T->value,
-			T->sum
+			T->sum,
+			T->hash
 			);
 	printf("\n");
 
@@ -647,6 +736,9 @@ static int ecb_verify(
 		void*			cbdata
 		)
 	{
+	hash_t			hash = 0;
+	hash_ctx_t		hctx;
+
 	QUIET_UNUSED(cbdata);
 
 //	printf("Verify::  ");
@@ -705,6 +797,37 @@ printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 		return EAVL_ERROR;
 		}
+	hash_init(&hctx);
+	hash_update(
+			&hctx,
+			&container_of(eavl_node, node_t, node)->key,
+			sizeof(unsigned int)
+			);
+	hash_update(
+			&hctx,
+			&container_of(eavl_node, node_t, node)->value,
+			sizeof(unsigned int)
+			);
+	hash_update(
+			&hctx,
+			(childL)
+				? &container_of(childL, node_t, node)->hash
+				: &hash,
+			sizeof(hash_t)
+			);
+	hash_update(
+			&hctx,
+			(childR)
+				? &container_of(childR, node_t, node)->hash
+				: &hash,
+			sizeof(hash_t)
+			);
+	hash_final(&hctx, &hash);
+	if (hash_cmp(&container_of(eavl_node, node_t, node)->hash, &hash))
+		{
+printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
+		return EAVL_ERROR;
+		}
 
 	return EAVL_CB_OK;
 	return EAVL_CB_FINISHED;
@@ -718,6 +841,9 @@ static int ecb_fixup(
 		void*			cbdata
 		)
 	{
+	hash_t			hash = 0;
+	hash_ctx_t		hctx;
+
 	QUIET_UNUSED(cbdata);
 
 //	printf("ecb_fixup::  ");
@@ -764,6 +890,35 @@ static int ecb_fixup(
 				: 0
 				)
 			;
+	hash_init(&hctx);
+	hash_update(
+			&hctx,
+			&container_of(eavl_node, node_t, node)->key,
+			sizeof(unsigned int)
+			);
+	hash_update(
+			&hctx,
+			&container_of(eavl_node, node_t, node)->value,
+			sizeof(unsigned int)
+			);
+	hash_update(
+			&hctx,
+			(childL)
+				? &container_of(childL, node_t, node)->hash
+				: &hash,
+			sizeof(hash_t)
+			);
+	hash_update(
+			&hctx,
+			(childR)
+				? &container_of(childR, node_t, node)->hash
+				: &hash,
+			sizeof(hash_t)
+			);
+	hash_final(
+			&hctx,
+			&container_of(eavl_node, node_t, node)->hash
+			);
 
 	return EAVL_CB_OK;
 	}
