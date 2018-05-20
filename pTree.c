@@ -283,7 +283,7 @@ int PRIVATE(find)(
 				continue;
 
 			case EAVL_CMP_RIGHT:
-				right =node;
+				right = node;
 				node = GET_CHILD(node, DIR_LEFT);
 				continue;
 			}

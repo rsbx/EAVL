@@ -169,7 +169,7 @@ static int PRIVATE(Validate_Tree_Recurse)(
 					&height[i],
 					stinterval
 					);
-			if (result)
+			if (result != EAVL_OK)
 				{
 				return result;
 				}

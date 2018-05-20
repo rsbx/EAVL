@@ -316,7 +316,7 @@ int PRIVATE(find)(
 				continue;
 
 			case EAVL_CMP_RIGHT:
-				right =node;
+				right = node;
 				PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, node);
 				node = GET_CHILD(node, DIR_LEFT);
 				continue;
