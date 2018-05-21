@@ -89,7 +89,6 @@ typedef	void			hash_data_t;
 typedef struct params		params_t;
 typedef unsigned int		order_mask_t;
 typedef int (cb_t)(EAVLp_node_t* node, order_mask_t cover, void* cbdata);
-typedef int (cb_tt_t)(EAVLp_node_t* node, order_mask_t cover, unsigned int safe, void* cbdata);
 typedef struct stats		stats_t;
 
 
