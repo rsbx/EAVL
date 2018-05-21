@@ -1980,6 +1980,13 @@ static int test_iterate(
 		return -1;
 		}
 
+	if (mtrack->total)
+		{
+		printf("ERROR: Un-free'd nodes: %d\n", mtrack->total);
+		printf("\t%s:%u\n", __FILE__, __LINE__);
+		return -1;
+		}
+
 	destroy_mtrack(mtrack);
 	return error;
 	}
