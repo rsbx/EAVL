@@ -322,7 +322,6 @@ static int hash_cmp(
 	}
 
 
-#if 0
 static void hash_copy(
 		hash_t*			old,
 		hash_t*			new
@@ -330,7 +329,6 @@ static void hash_copy(
 	{
 	*new = *old;
 	}
-#endif
 
 
 #define CALLBACK(NODE, COVER, CBP, CBDATA, LIMITER, RES)		\
@@ -1030,8 +1028,11 @@ static int ecb_fixup(
 		void*			cbdata
 		)
 	{
+	node_t			temp_node;
 	hash_t			hash = 0;
 	hash_ctx_t		hctx;
+
+	NODE_INIT(&temp_node);
 
 //	printf("ecb_fixup::  ");
 //	CBNODEPRINT(eavl_node, "");
@@ -1042,7 +1043,7 @@ static int ecb_fixup(
 //	CBNODEPRINTHW(childR);
 //	printf("\n");
 
-	container_of(eavl_node, node_t, node)->height =
+	temp_node.height =
 			1 + MAX(
 				((childL)
 					? container_of(childL, node_t, node)->height
@@ -1054,7 +1055,7 @@ static int ecb_fixup(
 					)
 				)
 			;
-	container_of(eavl_node, node_t, node)->weight =
+	temp_node.weight =
 			1
 			+ ((childL)
 				? container_of(childL, node_t, node)->weight
@@ -1065,7 +1066,7 @@ static int ecb_fixup(
 				: 0
 				)
 			;
-	container_of(eavl_node, node_t, node)->sum =
+	temp_node.sum =
 			1
 			+ container_of(eavl_node, node_t, node)->value
 			+ ((childL)
@@ -1106,9 +1107,23 @@ static int ecb_fixup(
 				);
 		hash_final(
 				&hctx,
-				&container_of(eavl_node, node_t, node)->hash
+				&temp_node.hash
 				);
 		}
+
+	if (container_of(eavl_node, node_t, node)->height == temp_node.height
+			&& container_of(eavl_node, node_t, node)->weight == temp_node.weight
+			&& container_of(eavl_node, node_t, node)->sum == temp_node.sum
+			&& (((cbdata_t*)cbdata)->params->timing || !hash_cmp(&container_of(eavl_node, node_t, node)->hash, &temp_node.hash))
+			)
+		{
+		return EAVL_CB_FINISHED;
+		}
+
+	container_of(eavl_node, node_t, node)->height = temp_node.height;
+	container_of(eavl_node, node_t, node)->weight = temp_node.weight;
+	container_of(eavl_node, node_t, node)->sum = temp_node.sum;
+	hash_copy(&temp_node.hash, &container_of(eavl_node, node_t, node)->hash);
 
 	return EAVL_CB_OK;
 	}
