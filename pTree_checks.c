@@ -60,9 +60,7 @@ unsigned int	PUBLIC(Checks_Available) = EAVLp_CHECKS_AVAILABLE & EAVL_CHECK_ALL;
 unsigned int	PUBLIC(Checks_Enabled) = 0;
 
 
-#if EAVLp_CHECKS_AVAILABLE & EAVL_CHECK_TREE
-
-
+#if CHECKS_AVAILABLE & EAVL_CHECK_TREE
 
 
 static int PRIVATE(Validate_Tree_Recurse)(
