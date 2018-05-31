@@ -148,6 +148,21 @@ static int PRIVATE(Validate_Tree_Recurse)(
 
 	for (i=0; i<2; i++)
 		{
+		T = myfence[i];
+		if (T)
+			{
+			EAVL_dir_t		cmp;
+
+			CB_COMPARE(NULL, node, T, compare, cbdata, cmp);
+			if (i != cmp)
+				{
+				return EAVL_ERROR_COMPARE;
+				}
+			}
+		}
+
+	for (i=0; i<2; i++)
+		{
 		T = GET_CHILD(node, i);
 		if (T)
 			{
@@ -176,18 +191,6 @@ static int PRIVATE(Validate_Tree_Recurse)(
 
 			myinterval[i] = stinterval[i];
 			myfence[i] = stinterval[1-i];
-			}
-
-		T = myfence[i];
-		if (T)
-			{
-			EAVL_dir_t		cmp;
-
-			CB_COMPARE(NULL, node, T, compare, cbdata, cmp);
-			if (i != cmp)
-				{
-				return EAVL_ERROR_COMPARE;
-				}
 			}
 		}
 
