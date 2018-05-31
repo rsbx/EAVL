@@ -86,7 +86,7 @@ static int PRIVATE(Validate_Tree_Recurse)(
 	EAVLp_node_t*		myfence[2];
 	EAVLp_node_t*		stinterval[2];
 
-	if (GET_PARENT(node) != parent || (parent && SID(parent, node) != dir))
+	if (GET_PARENT(node) != parent || (parent && GET_CHILD(parent, dir) != node))
 		{
 		return EAVL_ERROR_TREE;
 		}
