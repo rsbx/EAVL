@@ -63,18 +63,6 @@ unsigned int	PUBLIC(Checks_Enabled) = 0;
 #if EAVLp_CHECKS_AVAILABLE & EAVL_CHECK_TREE
 
 
-static int PRIVATE(Validate_Tree_Recurse)(
-		EAVLp_node_t*		node,
-		EAVLp_node_t*		parent,
-		EAVL_dir_t		dir,
-		EAVLp_node_t*		fenceL,
-		EAVLp_node_t*		fenceR,
-		EAVLp_cbCompare_t	compare,
-		EAVLp_cbVerify_t*	verifyp,
-		void*			cbdata,
-		int*			heightp,
-		EAVLp_node_t**		myinterval
-		);
 
 
 static int PRIVATE(Validate_Tree_Recurse)(
