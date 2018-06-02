@@ -1097,19 +1097,23 @@ static int PRIVATE(remove)(
 
 	T = GET_CHILD(del_node, dir);
 	PATHE_GET_DANGER(pathlen-1, cbpathe, cbdata, prev);
+
+	NODE_CLEAR(del_node);
+	if (nodep)
+		{
+		*nodep = del_node;
+		}
+
 	if (&root == prev)
 		{
 		*rootp = T;
 		PATHE_SET_DANGER(0, cbpathe, cbdata, NULL);
 		return result;
 		}
-
-	dir = SID(prev, del_node);
-	SET_CHILD(prev, T, dir);
-	NODE_CLEAR(del_node);
-	if (nodep)
+	else
 		{
-		*nodep = del_node;
+		dir = SID(prev, del_node);
+		SET_CHILD(prev, T, dir);
 		}
 
 	pathlen--;

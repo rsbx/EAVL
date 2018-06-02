@@ -986,6 +986,13 @@ int PRIVATE(remove)(
 
 	T = GET_CHILD(del_node, dir);
 	prev = GET_PARENT(del_node);
+
+	NODE_CLEAR(del_node);
+	if (nodep)
+		{
+		*nodep = del_node;
+		}
+
 	if (&root == prev)
 		{
 		*rootp = T;
@@ -995,13 +1002,10 @@ int PRIVATE(remove)(
 			}
 		return result;
 		}
-
-	dir = SID(prev, del_node);
-	SET_CHILD(prev, T, dir);
-	NODE_CLEAR(del_node);
-	if (nodep)
+	else
 		{
-		*nodep = del_node;
+		dir = SID(prev, del_node);
+		SET_CHILD(prev, T, dir);
 		}
 
 	// dir === direction of removed node
