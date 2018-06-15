@@ -53,29 +53,29 @@ typedef EAVL_pnode_t		EAVLp_node_t;
 typedef struct EAVLp_cbset	EAVLp_cbset_t;
 
 typedef EAVL_dir_t (*EAVLp_cbCompare_t)(
-		void*		ref_value,
-		EAVLp_node_t*	ref_node,
-		EAVLp_node_t*	node,
-		void*		cbdata
+		void*			ref_value,
+		EAVLp_node_t*		ref_node,
+		EAVLp_node_t*		node,
+		void*			cbdata
 		);
 
 typedef int (*EAVLp_cbFixup_t)(
-		EAVLp_node_t*	node,
-		EAVLp_node_t*	childL,
-		EAVLp_node_t*	childR,
-		void*		cbdata
+		EAVLp_node_t*		node,
+		EAVLp_node_t*		childL,
+		EAVLp_node_t*		childR,
+		void*			cbdata
 		);
 
 typedef int (*EAVLp_cbVerify_t)(
-		EAVLp_node_t*	node,
-		EAVLp_node_t*	childL,
-		EAVLp_node_t*	childR,
-		void*		cbdata
+		EAVLp_node_t*		node,
+		EAVLp_node_t*		childL,
+		EAVLp_node_t*		childR,
+		void*			cbdata
 		);
 
 typedef int (*EAVLp_cbRelease_t)(
-		EAVLp_node_t*	node,
-		void*		cbdata
+		EAVLp_node_t*		node,
+		void*			cbdata
 		);
 
 

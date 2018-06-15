@@ -80,8 +80,8 @@ static EAVL_dir_t FOREIGN(context_, node_cmp)(
 
 
 int FOREIGN(context_, find)(
-		EAVL_context_node_t*		root,
-		EAVL_context_node_t*		node
+		EAVL_context_node_t*	root,
+		EAVL_context_node_t*	node
 		)
 	{
 	EAVL_pnode_t*		dummy;

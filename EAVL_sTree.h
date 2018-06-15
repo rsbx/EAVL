@@ -57,35 +57,35 @@ typedef struct EAVLs_cbset	EAVLs_cbset_t;
 typedef EAVLs_node_t*		EAVLs_pathelement_t;
 
 typedef EAVL_dir_t (*EAVLs_cbCompare_t)(
-		void*		ref_value,
-		EAVLs_node_t*	ref_node,
-		EAVLs_node_t*	node,
-		void*		cbdata
+		void*			ref_value,
+		EAVLs_node_t*		ref_node,
+		EAVLs_node_t*		node,
+		void*			cbdata
 		);
 
 typedef int (*EAVLs_cbFixup_t)(
-		EAVLs_node_t*	node,
-		EAVLs_node_t*	childL,
-		EAVLs_node_t*	childR,
-		void*		cbdata
+		EAVLs_node_t*		node,
+		EAVLs_node_t*		childL,
+		EAVLs_node_t*		childR,
+		void*			cbdata
 		);
 
 typedef int (*EAVLs_cbVerify_t)(
-		EAVLs_node_t*	node,
-		EAVLs_node_t*	childL,
-		EAVLs_node_t*	childR,
-		void*		cbdata
+		EAVLs_node_t*		node,
+		EAVLs_node_t*		childL,
+		EAVLs_node_t*		childR,
+		void*			cbdata
 		);
 
 typedef int (*EAVLs_cbRelease_t)(
-		EAVLs_node_t*	node,
-		void*		cbdata
+		EAVLs_node_t*		node,
+		void*			cbdata
 		);
 
 typedef EAVLs_pathelement_t* (*EAVLs_cbPathe_t)(
-		unsigned int	index,
-		unsigned int	param,
-		void*		cbdata
+		unsigned int		index,
+		unsigned int		param,
+		void*			cbdata
 		);
 
 
