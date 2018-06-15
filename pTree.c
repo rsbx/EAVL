@@ -289,12 +289,18 @@ int PRIVATE(find)(
 			}
 		}
 
-	node = (rel == EAVL_FIND_EQ)
-			? node
-			: (rel < EAVL_FIND_EQ)
-				? left
-				: right
-			;
+	if (rel != EAVL_FIND_EQ)
+		{
+		if (rel < EAVL_FIND_EQ)
+			{
+			node = left;
+			}
+		else
+			{
+			node = right;
+			}
+		}
+
 	*resultp = node;
 
 	return (node) ? EAVL_OK : EAVL_NOTFOUND;

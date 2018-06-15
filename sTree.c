@@ -296,6 +296,8 @@ int PRIVATE(find)(
 	EAVLs_node_t*		right = NULL;
 	EAVL_dir_t		cmp;
 	unsigned int		pathlen = 0;
+	unsigned int		pathlen_left = 0;
+	unsigned int		pathlen_right = 0;
 
 	PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, NULL);
 
@@ -311,24 +313,34 @@ int PRIVATE(find)(
 
 			case EAVL_CMP_LEFT:
 				left = node;
+				pathlen_left = pathlen;
 				PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, node);
 				node = GET_CHILD(node, DIR_RIGHT);
 				continue;
 
 			case EAVL_CMP_RIGHT:
 				right = node;
+				pathlen_right = pathlen;
 				PATHE_SET_SAFE(pathlen++, cbpathe, cbdata, node);
 				node = GET_CHILD(node, DIR_LEFT);
 				continue;
 			}
 		}
 
-	node = (rel == EAVL_FIND_EQ)
-			? node
-			: (rel < EAVL_FIND_EQ)
-				? left
-				: right
-			;
+	if (rel != EAVL_FIND_EQ)
+		{
+		if (rel < EAVL_FIND_EQ)
+			{
+			node = left;
+			pathlen = pathlen_left;
+			}
+		else
+			{
+			node = right;
+			pathlen = pathlen_right;
+			}
+		}
+
 	*resultp = node;
 	*pathlenp = pathlen;
 
