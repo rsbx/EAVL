@@ -1036,7 +1036,6 @@ static int tree_verify(
 		}
 	cbdata->tracker = tracker;
 
-//	RWALK2(EAVLp_TREE_ROOT(&tracker->tree), EAVL_DIR_RIGHT, MASK_PRE, &cb_verify, cbdata, error);
 	RWALK3(EAVLp_TREE_ROOT(&tracker->tree), EAVL_DIR_RIGHT, MASK_PRE, NULL, NULL, &cb_verify, cbdata, error);
 
 	destroy_cbData(cbdata);
@@ -1306,7 +1305,7 @@ static int check_mtrack(
 		} while (0)
 
 
-static int cb_enumerate(
+static int cb_find_next(
 		EAVLp_node_t*		node,
 		order_mask_t		cover,
 		void*			cbdata
@@ -1316,7 +1315,7 @@ static int cb_enumerate(
 
 	QUIET_UNUSED(cover);
 
-//	printf("found[%u]: %u  0x%x\n", __LINE__, container_of(node, node_t, node)->key, cover);
+//printf("found[%u]: %u  0x%x\n", __LINE__, container_of(node, node_t, node)->key, cover);
 
 	tracker = ((cbdata_t*)cbdata)->tracker;
 
@@ -1327,7 +1326,58 @@ static int cb_enumerate(
 		return -1;
 		}
 
-	if (tracker->order[tracker->found++] != node)
+	if (!tracker->found)
+		{
+		printf("ERROR: found == 0\n");
+		printf("\t%s:%u\n", __FILE__, __LINE__);
+		return -1;
+		}
+
+	if (tracker->order[--(tracker->found)] != node)
+		{
+		printf("ERROR: enumeration mismatch\n");
+		printf("\t%s:%u\n", __FILE__, __LINE__);
+		return -1;
+		}
+
+	if (!tracker->found)
+		{
+		return EAVL_CB_FINISHED;
+		}
+
+	return EAVL_OK;
+	}
+
+
+static int cb_first_next(
+		EAVLp_node_t*		node,
+		order_mask_t		cover,
+		void*			cbdata
+		)
+	{
+	tree_track_t*		tracker;
+
+	QUIET_UNUSED(cover);
+
+//printf("found[%u]: %u  0x%x\n", __LINE__, container_of(node, node_t, node)->key, cover);
+
+	tracker = ((cbdata_t*)cbdata)->tracker;
+
+	if (tracker->found >= tracker->count)
+		{
+		printf("ERROR: found > count\n");
+		printf("\t%s:%u\n", __FILE__, __LINE__);
+		return -1;
+		}
+
+	if (!tracker->found)
+		{
+		printf("ERROR: found == 0\n");
+		printf("\t%s:%u\n", __FILE__, __LINE__);
+		return -1;
+		}
+
+	if (tracker->order[--(tracker->found)] != node)
 		{
 		printf("ERROR: enumeration mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1338,7 +1388,44 @@ static int cb_enumerate(
 	}
 
 
-static int test_enumerate(
+static int relop(
+		unsigned int		rel,
+		unsigned int		a,
+		unsigned int		b
+		)
+	{
+	switch (rel)
+		{
+		case EAVL_FIND_LT:
+			return (a < b);
+			break;
+
+		case EAVL_FIND_LE:
+			return (a <= b);
+			break;
+
+		case EAVL_FIND_EQ:
+			return (a == b);
+			break;
+
+		case EAVL_FIND_GE:
+			return (a >= b);
+			break;
+
+		case EAVL_FIND_GT:
+			return (a > b);
+			break;
+
+		default:
+			printf("ERROR: Bad rel op: %u\n", rel);
+			printf("\t%s:%u\n", __FILE__, __LINE__);
+			return -1;
+			break;
+		}
+	}
+
+
+static int test_find_first_next(
 		master_track_t*		mtrack,
 		stats_t*		stats,
 		params_t*		params
@@ -1348,172 +1435,310 @@ static int test_enumerate(
 	EAVLp_context_t*	context;
 	EAVLp_node_t*		node;
 	EAVL_dir_t		dir;
+	EAVL_rel_t		rel;
 	EAVL_order_t		order;
 	order_mask_t		want;
 	void*			cbdata;
-	unsigned int		f;
-	unsigned int		i;
+	unsigned int		f = 0;
+	unsigned int		r;
+	unsigned int		start;
 	int			error;
 
 	if (params->verbose > 2)
 		{
-		printf("### test_enumerate::\n");
+		printf("### test_find_first_next::\n");
 		}
 
 	tracker = &mtrack->tracker;
 	context = &tracker->context;
 	cbdata = tracker->cbdata;
 
-	i = (unsigned int)random();
-	dir = (i & 0x1) ? EAVL_DIR_RIGHT : EAVL_DIR_LEFT;
-	i >>= 1;
-	switch (i & 0x3)
+	r = (unsigned int)random();
+	switch (r & ((1u<<3)-1))
 		{
-		case 0:
-			order = EAVL_ORDER_PRE;
-			want = MASK_PRE;
-			break;
+		case 0:		// 000 LT
+		case 1:		// 001 LE
+		case 2:		// 010 EQ
+		case 3:		// 011 GE
+		case 4:		// 100 GT
+			rel = r & ((1u<<3)-1);
+			dir = (r>>3) & 0x1;
+			r = (r>>4) % params->size;
 
-		case 1:
-			order = EAVL_ORDER_POST;
-			want = MASK_POST;
-			break;
-
-		default:
-			order = EAVL_ORDER_IN;
-			want = MASK_IN;
-			/* break; */
-		}
-	i >>= 2;
-	i &= 0x3;
-
-	if (params->verbose > 3)
-		{
-		printf("\td:%u o:%o m:%u  f:%u\n", dir, order, want, !i);
-		}
-
-	if (!i)
-		{
-		f = 0;
-		do
-			{
-			error = EAVLp_First(context, dir, order, &node);
-			} while (error == EAVL_CALLBACK);
-		stats->first++;
-		stats->total++;
-		while (error == EAVL_OK)
-			{
-			tracker->order[f++] = node;
-			if (params->verbose > 4)
+			if (params->verbose > 3)
 				{
-				printf("found[%u}: %u\n", __LINE__, container_of(node, node_t, node)->key);
+				printf("\tfind:: r:%u i:%u\n", rel, r);
 				}
 
 			do
 				{
-				error = EAVLp_Next(context, dir, order, &node);
+				error = EAVLp_Find(context, rel, NULL, &r, NULL, &node);
 				} while (error == EAVL_CALLBACK);
-			stats->next++;
+			stats->find++;
 			stats->total++;
-			}
-		if (error != EAVL_NOTFOUND)
-			{
-			printf("ERROR: Node_%s: %d\n", (f) ? "Next" : "First", error);
-			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
-			}
-		error = EAVL_OK;
-		if (f != tracker->count)
-			{
-			printf("ERROR: test_enumerate: found != count\n");
-			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
-			}
+			switch (error)
+				{
+				case EAVL_OK:
+					tracker->order[f++] = node;
+					start = container_of(node, node_t, node)->key;
+//printf("\t%u\n", container_of(node, node_t, node)->key);
+					if (!tracker->count || !(tracker->presence[container_of(node, node_t, node)->key] & BIT_PRESENT))
+						{
+						printf("ERROR: Find(%u, %u) found non-existing node\n", rel, r);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+					if (!(rel & 0x3u) && container_of(node, node_t, node)->key == r)
+						{
+						printf("ERROR: find() %u == %u\n", r, container_of(node, node_t, node)->key);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+					if ((rel & 0x3u) && (tracker->presence[r] & BIT_PRESENT)
+							&& container_of(node, node_t, node)->key != r
+							)
+						{
+						printf("ERROR: find() %u != %u\n", r, container_of(node, node_t, node)->key);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+					if (rel != EAVL_FIND_EQ)
+						{
+						dir = (rel > EAVL_FIND_EQ) ? EAVL_DIR_LEFT : EAVL_DIR_RIGHT;
+						if ((!(rel & 0x3u) || !(tracker->presence[container_of(node, node_t, node)->key] & BIT_PRESENT)))
+							{
+							if (!relop(rel, container_of(node, node_t, node)->key, r))
+								{
+								printf("ERROR: find() rel:%u r:%u n:%u\n", rel, r, container_of(node, node_t, node)->key);
+								printf("\t%s:%u\n", __FILE__, __LINE__);
+								return -1;
+								}
+							do
+								{
+								error = EAVLp_Next(context, dir, EAVL_ORDER_IN, &node);
+								} while (error == EAVL_CALLBACK);
+							stats->next++;
+							stats->total++;
+							if (error == EAVL_OK)
+								{
+								tracker->order[f++] = node;
+								start = container_of(node, node_t, node)->key;
+//printf("\t%u\n", container_of(node, node_t, node)->key);
+								if (relop(rel, container_of(node, node_t, node)->key, r))
+									{
+									printf("ERROR: next() rel:%u r:%u n:%u\n", rel, r, container_of(node, node_t, node)->key);
+									printf("\t%s:%u\n", __FILE__, __LINE__);
+									return -1;
+									}
+								}
+							else if (error != EAVL_NOTFOUND)
+								{
+								printf("ERROR: Next(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
+								printf("\t%s:%u\n", __FILE__, __LINE__);
+								return -1;
+								}
+							}
+						}
+					else
+						{
+						do
+							{
+							error = EAVLp_Next(context, dir, EAVL_ORDER_IN, &node);
+							} while (error == EAVL_CALLBACK);
+						stats->next++;
+						stats->total++;
+						if (error == EAVL_OK)
+							{
+							tracker->order[f++] = node;
+							start = container_of(node, node_t, node)->key;
+//printf("\t%u\n", container_of(node, node_t, node)->key);
+							if (relop(rel, container_of(node, node_t, node)->key, r))
+								{
+								printf("ERROR: next() d:%u n:%u r:%u\n", dir, container_of(node, node_t, node)->key, r);
+								printf("\t%s:%u\n", __FILE__, __LINE__);
+								return -1;
+								}
+							}
+						else if (error != EAVL_NOTFOUND)
+							{
+							printf("ERROR: Next(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						}
 
-		if (!params->timing)
-			{
-			tracker->found = 0;
-			RWALK3(EAVLp_TREE_ROOT(&tracker->tree), dir, want, NULL, NULL, &cb_enumerate, cbdata, error);
-			if (error)
-				{
-				printf("ERROR: rwalk: %d\n", error);
-				printf("\t%s:%u\n", __FILE__, __LINE__);
-				return -1;
-				}
-			if (tracker->found != f)
-				{
-				printf("ERROR: test_enumerate: found(%u) != First_Next(%u)\n", tracker->found, f);
-				printf("\t%s:%u\n", __FILE__, __LINE__);
-				return -1;
-				}
-			}
-		}
-	else
-		{
-		if (tracker->count)
-			{
-			i = (unsigned int)random()%tracker->count;
-			i = container_of(tracker->shuffle[i], node_t, node)->key;
-			}
-		else
-			{
-			i = -2u;
-			}
-		if (params->verbose > 3)
-			{
-			printf("\ti:%u\n", i);
-			}
+					if (!params->timing)
+						{
+						tracker->found = f;
+						RWALK3(EAVLp_TREE_ROOT(&tracker->tree), EAVL_DIR_OTHER(dir), MASK_IN, &start, mtrack->cbset.compare, &cb_find_next, cbdata, error);
+						if (error)
+							{
+							printf("ERROR: rwalk: %d\n", error);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						if (tracker->found)
+							{
+							printf("ERROR: test_find_first_next: found(%u) != Find_Next(%u)\n", tracker->found, f);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						}
 
-		f = 0;
-		do
-			{
-			error = EAVLp_Find(context, EAVL_FIND_EQ, NULL, &i, NULL, &node);
-			} while (error == EAVL_CALLBACK);
-		stats->find++;
-		stats->total++;
-		while (error == EAVL_OK)
-			{
-			tracker->order[f++] = node;
-			if (params->verbose > 4)
+					break;
+
+				case EAVL_NOTFOUND:
+					if ((rel & 0x3u) && tracker->count && (tracker->presence[r] & BIT_PRESENT))
+						{
+						printf("ERROR: Find(%u, %u) existing node not found\n", rel, r);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+					if (rel != EAVL_FIND_EQ && tracker->count)
+						{
+						do
+							{
+							error = EAVLp_First(context, dir, EAVL_ORDER_IN, &node);
+							} while (error == EAVL_CALLBACK);
+						stats->first++;
+						stats->total++;
+						if (error != EAVL_OK)
+							{
+							printf("ERROR: First(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						if ((!(rel & 0x6u) && (container_of(node, node_t, node)->key < r))
+								|| ((rel & 0x6u) && (container_of(node, node_t, node)->key > r))
+								)
+							{
+							printf("ERROR: %u  %u\n", r, container_of(node, node_t, node)->key);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						}
+					break;
+
+				default:
+					printf("ERROR: unexpected Find() result: %d\n", error);
+					printf("\t%s:%u\n", __FILE__, __LINE__);
+					return -1;
+					break;
+				}
+			break;
+
+		case 5:
+		case 6:
+		case 7:
+			order = (r & ((1<<3)-1)) - 5;
+			dir = (r>>3) & 0x1;
+			want = 1u << EAVL_ORDER_INVERSE(order);
+			r >>= 3;
+
+			if (params->verbose > 3)
 				{
-				printf("found[%u]: %u\n", __LINE__, container_of(node, node_t, node)->key);
+				printf("\tfirst:: d:%u o:%o m:%u\n", dir, order, want);
 				}
 
 			do
 				{
-				error = EAVLp_Next(context, dir, order, &node);
+				error = EAVLp_First(context, dir, order, &node);
 				} while (error == EAVL_CALLBACK);
-			stats->next++;
+			stats->first++;
 			stats->total++;
-			}
-		if (error != EAVL_NOTFOUND)
-			{
-			printf("ERROR: Node_%s: %d\n", (tracker->found) ? "Next" : "First", error);
-			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
-			}
-		error = EAVL_OK;
+			switch (error)
+				{
+				case EAVL_OK:
+//printf("\t%u\n", container_of(node, node_t, node)->key);
+					tracker->order[f++] = node;
+					start = container_of(node, node_t, node)->key;
+					if (!tracker->count || !(tracker->presence[container_of(node, node_t, node)->key] & BIT_PRESENT))
+						{
+						printf("ERROR: First(%u, %u) found non-node\n", dir, order);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+//printf("\t\tfirst:: d:%u o:%o m:%u\n", dir, order, want);
 
-		if (!params->timing)
-			{
-			tracker->found = 0;
-			RWALK3(EAVLp_TREE_ROOT(&tracker->tree), dir, want, &i, mtrack->cbset.compare, &cb_enumerate, cbdata, error);
-			if (error)
-				{
-				printf("ERROR: rwalk: %d\n", error);
-				printf("\t%s:%u\n", __FILE__, __LINE__);
-				return -1;
+					if (r & 0x1u)
+						{
+//printf("BACKWARD\n");
+						do
+							{
+							error = EAVLp_Next(context, EAVL_DIR_OTHER(dir), EAVL_ORDER_INVERSE(order), &node);
+							} while (error == EAVL_CALLBACK);
+						stats->next++;
+						stats->total++;
+						if (error != EAVL_NOTFOUND)
+							{
+							printf("ERROR: Next(%u, %u) --> %d not EAVL_NOTFOUND\n",
+									EAVL_DIR_OTHER(dir), EAVL_ORDER_INVERSE(order), error
+									);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+//printf("\t\t%u\n", container_of(node, node_t, node)->key);
+							return -1;
+							}
+						}
+					else
+						{
+//printf("FORWARD\n");
+						do
+							{
+							error = EAVLp_Next(context, dir, order, &node);
+							} while (error == EAVL_CALLBACK);
+						stats->next++;
+						stats->total++;
+						if (error == EAVL_OK)
+							{
+							tracker->order[f++] = node;
+							start = container_of(node, node_t, node)->key;
+							}
+						else if (error != EAVL_NOTFOUND)
+							{
+							printf("ERROR: Next(%u, %u) --> %d unexpected\n", dir, order, error);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						}
+
+					if (!params->timing)
+						{
+						tracker->found = f;
+						RWALK3(EAVLp_TREE_ROOT(&tracker->tree), EAVL_DIR_OTHER(dir), want, &start, mtrack->cbset.compare, &cb_first_next, cbdata, error);
+						if (error)
+							{
+							printf("ERROR: rwalk: %d\n", error);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						if (tracker->found)
+							{
+							printf("ERROR: test_find_first_next: tracker->found non-zero (%u)\n", tracker->found);
+							printf("\t%s:%u\n", __FILE__, __LINE__);
+							return -1;
+							}
+						}
+					break;
+
+				case EAVL_NOTFOUND:
+					if (tracker->count)
+						{
+						printf("ERROR: First(%u, %u) node not found\n", dir, order);
+						printf("\t%s:%u\n", __FILE__, __LINE__);
+						return -1;
+						}
+					break;
+
+				default:
+					printf("ERROR: unexpected First() result: %d\n", error);
+					printf("\t%s:%u\n", __FILE__, __LINE__);
+					return -1;
+					break;
 				}
-			if (tracker->found != f)
-				{
-				printf("ERROR: test_enumerate: found(%u) != Find_Next(%u)\n", tracker->found, f);
-				printf("\t%s:%u\n", __FILE__, __LINE__);
-				return -1;
-				}
-			}
+			break;
 		}
 
-	return error;
+	return 0;
 	}
 
 
@@ -1703,17 +1928,16 @@ static int test_iterate(
 
 	for (i=0; i<params->iterations; i++)
 		{
-		r = (unsigned int)random() & ((mtrack->tracker.count) ? 0x1f : 0x07);
-//		r = (unsigned int)random() & (0x07);
-		switch(r)
+		r = (unsigned int)random();
+		switch(r & ((mtrack->tracker.count) ? 0x1f : 0x07))
 			{
 			case 0:
 			case 1:
 			case 2:
 //				print_tree(EAVLp_TREE_ROOT(&mtrack->tracker.tree));
-				if ((error = test_enumerate(mtrack, stats, params)))
+				if ((error = test_find_first_next(mtrack, stats, params)))
 					{
-					printf("ERROR: test_enumerate: %d\n", error);
+					printf("ERROR: test_find_first_next: %d\n", error);
 					printf("\t%s:%u\n", __FILE__, __LINE__);
 					print_tree(EAVLp_TREE_ROOT(&mtrack->tracker.tree));
 					print_recent(&mtrack->tracker);
@@ -1785,7 +2009,7 @@ static int test_iterate(
 				}
 			}
 
-		if ((error = check_mtrack(mtrack, params)))
+		if (!params->timing && (error = check_mtrack(mtrack, params)))
 			{
 			printf("ERROR: check_mtrack: %d\n", error);
 			printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1866,7 +2090,7 @@ int main(int argc, char **argv)
 				break;
 
 			case 't':
-				params.timing = 1;
+				params.timing++;
 				break;
 
 			case 'v':

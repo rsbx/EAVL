@@ -93,6 +93,7 @@ LN	= ln -s
 RM	= rm -f
 
 CFLAGS	+= -O3 -Wall -Werror
+#CFLAGS	+= -g -Wall -Werror
 CFLAGS	+= -std=c99
 CFLAGS	+= -pedantic
 CFLAGS	+= -Wextra -Wunused -Wuninitialized -Wundef -Wshadow -Wconversion
