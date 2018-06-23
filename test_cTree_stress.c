@@ -1865,7 +1865,7 @@ static int cb_find_next(
 
 	tracker = ((cbdata_t*)cbdata)->tracker;
 
-	if (tracker->found >= tracker->count)
+	if (tracker->found > tracker->count)
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1909,7 +1909,7 @@ static int cb_first_next(
 
 	tracker = ((cbdata_t*)cbdata)->tracker;
 
-	if (tracker->found >= tracker->count)
+	if (tracker->found > tracker->count)
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -2756,8 +2756,8 @@ int main(int argc, char **argv)
 				(params.bad_dup) ? "TRUE" : "FALSE");
 		printf("Bad pathe:         %8s\n",
 				(params.bad_pathe) ? "TRUE" : "FALSE");
-		printf("Timing:            %8s\n",
-				(params.timing) ? "TRUE" : "FALSE");
+		printf("Timing:            %8s(%u)\n",
+				(params.timing) ? "TRUE" : "FALSE", params.timing);
 		printf("Verbose:           %8s(%u)\n",
 				(params.verbose) ? "TRUE" : "FALSE", params.verbose);
 		printf("\n");
@@ -2765,7 +2765,10 @@ int main(int argc, char **argv)
 
 	EAVLc_Checks_Enabled = EAVLc_Checks_Available & params.checks_desired;
 
-	result = test_iterate(&stats, &params);
+	if (params.size)
+		{
+		result = test_iterate(&stats, &params);
+		}
 
 	if (params.verbose == 1)
 		{

@@ -1319,7 +1319,7 @@ static int cb_find_next(
 
 	tracker = ((cbdata_t*)cbdata)->tracker;
 
-	if (tracker->found >= tracker->count)
+	if (tracker->found > tracker->count)
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1363,7 +1363,7 @@ static int cb_first_next(
 
 	tracker = ((cbdata_t*)cbdata)->tracker;
 
-	if (tracker->found >= tracker->count)
+	if (tracker->found > tracker->count)
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -2127,8 +2127,8 @@ int main(int argc, char **argv)
 		printf("Checks avail:        0x%04x\n", EAVLp_Checks_Available);
 		printf("Checks enabled:      0x%04x\n", EAVLp_Checks_Available & params.checks_desired);
 		printf("Random seed:     0x%08x\n", params.random_seed);
-		printf("Timing:            %8s\n",
-				(params.timing) ? "TRUE" : "FALSE");
+		printf("Timing:            %8s(%u)\n",
+				(params.timing) ? "TRUE" : "FALSE", params.timing);
 		printf("Verbose:           %8s(%u)\n",
 				(params.verbose) ? "TRUE" : "FALSE", params.verbose);
 		printf("\n");
@@ -2136,7 +2136,10 @@ int main(int argc, char **argv)
 
 	EAVLp_Checks_Enabled = EAVLp_Checks_Available & params.checks_desired;
 
-	result = test_iterate(&stats, &params);
+	if (params.size)
+		{
+		result = test_iterate(&stats, &params);
+		}
 
 	if (params.verbose == 1)
 		{
