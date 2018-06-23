@@ -121,87 +121,76 @@ int PRIVATE(Path_match)(
 #if CHECKS_AVAILABLE & EAVL_CHECK_TREE
 
 
-static int PRIVATE(Validate_Tree_Recurse)(
+static int PRIVATE(validate_tree_recurse)(
 		EAVLs_node_t*		node,
-		EAVLs_node_t*		fenceL,
-		EAVLs_node_t*		fenceR,
+		int*			heightp,
+		EAVLs_node_t**		leftp,
 		EAVLs_cbCompare_t	compare,
 		EAVLs_cbVerify_t*	verifyp,
-		void*			cbdata,
-		int*			heightp,
-		EAVLs_node_t**		myinterval
+		void*			cbdata
 		)
 	{
 	int			result;
 	int			height[2] = {0, 0};
-	unsigned int		i;
-	EAVL_dir_t		baldir;
+	EAVL_dir_t		bal_node;
+	EAVL_dir_t		bal_height;
 	EAVLs_node_t*		T;
-	EAVLs_node_t*		myfence[2];
-	EAVLs_node_t*		stinterval[2];
+	EAVL_dir_t		cmp;
 
-	myfence[0] = fenceL;
-	myfence[1] = fenceR;
-
-	myinterval[0] = node;
-	myinterval[1] = node;
-
-	for (i=0; i<2; i++)
+	T = GET_CHILD(node, DIR_LEFT);
+	if (T)
 		{
-		T = myfence[i];
-		if (T)
+		result = PRIVATE(validate_tree_recurse)(
+				T,
+				&height[DIR_LEFT],
+				leftp,
+				compare,
+				verifyp,
+				cbdata
+				);
+		if (result != EAVL_OK)
 			{
-			EAVL_dir_t		cmp;
-
-			CB_COMPARE(NULL, node, T, compare, cbdata, cmp);
-			if (i != cmp)
-				{
-				return EAVL_ERROR_COMPARE;
-				}
+			return result;
 			}
 		}
 
-	for (i=0; i<2; i++)
+	if (*leftp)
 		{
-		T = GET_CHILD(node, i);
-		if (T)
+		CB_COMPARE(NULL, *leftp, node, compare, cbdata, cmp);
+		if (cmp != DIR_RIGHT)
 			{
-			EAVL_dir_t		cmp;
-
-			CB_COMPARE(NULL, node, T, compare, cbdata, cmp);
-			if (i != cmp)
-				{
-				return EAVL_ERROR_COMPARE;
-				}
-
-			result = PRIVATE(Validate_Tree_Recurse)(
-					T,
-					(i) ? node : fenceL,
-					(i) ? fenceR : node,
-					compare,
-					verifyp,
-					cbdata,
-					&height[i],
-					stinterval
-					);
-			if (result != EAVL_OK)
-				{
-				return result;
-				}
-
-			myinterval[i] = stinterval[i];
-			myfence[i] = stinterval[1-i];
+			return EAVL_ERROR_COMPARE;
 			}
 		}
 
-	baldir = (height[0] == height[1])
-			? 2
+	*leftp = node;
+
+	T = GET_CHILD(node, DIR_RIGHT);
+	if (T)
+		{
+		result = PRIVATE(validate_tree_recurse)(
+				T,
+				&height[DIR_RIGHT],
+				leftp,
+				compare,
+				verifyp,
+				cbdata
+				);
+		if (result != EAVL_OK)
+			{
+			return result;
+			}
+		}
+
+	bal_height = (height[0] == height[1])
+			? DIR_NEITHER
 			: ((height[0] > height[1])
-				? 0
-				: 1
+				? DIR_LEFT
+				: DIR_RIGHT
 			);
+	bal_node = GET_BAL(node);
 
-	if (baldir != GET_BAL(node) || abs(height[0]-height[1]) > 1)
+	if (bal_height != bal_node || abs(height[0]-height[1]) > 1)
 		{
 		return EAVL_ERROR_TREE;
 		}
@@ -210,8 +199,8 @@ static int PRIVATE(Validate_Tree_Recurse)(
 
 	CB_VERIFY(
 			node,
-			GET_CHILD(node, 0),
-			GET_CHILD(node, 1),
+			GET_CHILD(node, DIR_LEFT),
+			GET_CHILD(node, DIR_RIGHT),
 			*verifyp,
 			cbdata
 			);
@@ -228,19 +217,17 @@ int PRIVATE(Validate_Tree)(
 	int			result = EAVL_OK;
 	int			height;
 	EAVLs_cbVerify_t	verify = tree->cbset->verify;
-	EAVLs_node_t*		stinterval[2];
+	EAVLs_node_t*		left = NULL;
 
 	if (tree->root)
 		{
-		result = PRIVATE(Validate_Tree_Recurse)(
+		result = PRIVATE(validate_tree_recurse)(
 				tree->root,
-				NULL,
-				NULL,
+				&height,
+				&left,
 				tree->cbset->compare,
 				&verify,
-				context->common.cbdata,
-				&height,
-				stinterval
+				context->common.cbdata
 				);
 		}
 
