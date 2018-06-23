@@ -167,7 +167,7 @@ $(LIB_NAME):	$(LIB_FILE)
 $(LIB_FILE):	$(LIB_OBJS)
 	@echo "\$$(LD) $@"
 	@$(RM) $(LIB_NAME) $(LIB_SO)
-	@$(LD) -shared -soname $(LIB_NAME) -o $(LIB_FILE) -lc $^
+	@$(LD) -shared -soname $(LIB_NAME) -o $(LIB_FILE) $^
 
 
 DEPS	:= $(ALL_SRCS:%.c=.%.d)
