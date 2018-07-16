@@ -108,13 +108,13 @@ int check_tree(
 	int			error;
 	int			result = 0;
 
-	if ((error = EAVLp_Context_Init(&checkcontext, NULL)))
+	if ((error = EAVLp_Context_Init(&checkcontext, NULL)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Init: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
 		exit(1);
 		}
-	if ((error = EAVLp_Context_Associate(&checkcontext, context->tree)))
+	if ((error = EAVLp_Context_Associate(&checkcontext, context->tree)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Associate: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -148,7 +148,7 @@ int check_tree(
 		}
 
 out:
-	if ((error = EAVLp_Context_Disassociate(&checkcontext)))
+	if ((error = EAVLp_Context_Disassociate(&checkcontext)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Disassociate: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -343,7 +343,7 @@ int Node_verify(
 				)
 			)
 		{
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 	if (container_of(eavl_node, struct node, node)->weight !=
 			1
@@ -351,7 +351,7 @@ int Node_verify(
 			+ ((childR) ? container_of(childR, struct node, node)->weight : 0)
 			)
 		{
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 	if (container_of(eavl_node, struct node, node)->sum !=
 			container_of(eavl_node, struct node, node)->count
@@ -359,7 +359,7 @@ int Node_verify(
 			+ ((childR) ? container_of(childR, struct node, node)->sum : 0)
 			)
 		{
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 
 	return EAVL_CB_OK;
@@ -402,7 +402,7 @@ int Node_fixup(
 			+ ((childR) ? container_of(childR, struct node, node)->sum : 0)
 			;
 
-	return EAVL_OK;
+	return EAVL_CB_OK;
 	}
 
 
@@ -420,7 +420,7 @@ static int Node_release(
 
 	/* Do nothing */
 
-	return EAVL_OK;
+	return EAVL_CB_OK;
 	}
 
 
@@ -461,28 +461,28 @@ void init_tree_context(
 
 	UNUSED(tree);
 
-//	if ((error = EAVLp_Tree_Init(tree, NULL, &cbset)))
+//	if ((error = EAVLp_Tree_Init(tree, NULL, &cbset)) != EAVL_OK)
 //		{
 //		printf("ERROR: Tree_Init: %d\n", error);
 //		printf("\t%s:%u\n", __FILE__, __LINE__);
 //		exit(1);
 //		}
 //
-//	if ((error = EAVLp_Context_Init(context, NULL, NULL)))
+//	if ((error = EAVLp_Context_Init(context, NULL, NULL)) != EAVL_OK)
 //		{
 //		printf("ERROR: Context_Init: %d\n", error);
 //		printf("\t%s:%u\n", __FILE__, __LINE__);
 //		exit(1);
 //		}
 //
-//	if ((error = EAVLp_Context_Associate(context, tree)))
+//	if ((error = EAVLp_Context_Associate(context, tree)) != EAVL_OK)
 //		{
 //		printf("ERROR: Context_Associate: %d\n", error);
 //		printf("\t%s:%u\n", __FILE__, __LINE__);
 //		exit(1);
 //		}
 
-	if ((error = EAVLp_Clear(context, &Node_release)))
+	if ((error = EAVLp_Clear(context, &Node_release)) != EAVL_OK)
 		{
 		printf("ERROR: tree_Clear: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -502,7 +502,7 @@ void build_tree(
 	int			error;
 
 	init_tree_context(tree, context);
-	if ((error = EAVLp_Load(context, count, nodep)))
+	if ((error = EAVLp_Load(context, count, nodep)) != EAVL_OK)
 		{
 		printf("ERROR: Tree_Load: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -534,7 +534,7 @@ int insert(
 //	EAVLp_Tree_print(buffer, buffer, "", 2, context->tree->root);
 //	printf("\n");
 
-	if (error)
+	if (error != EAVL_OK)
 		{
 		printf("ERROR: Node_Insert: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -569,7 +569,7 @@ int Eremove(
 //	printf("%d\n\n", k);
 
 	error = EAVLp_Find(context, EAVL_FIND_EQ, NULL, NULL, nodep[k], &dummy);
-	if (error)
+	if (error != EAVL_OK)
 		{
 		printf("ERROR: Node_Find: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -591,7 +591,7 @@ int Eremove(
 //	EAVLp_Tree_print(buffer, buffer, "", 2, context->tree->root);
 //	printf("\n");
 
-	if (error)
+	if (error != EAVL_OK)
 		{
 		printf("ERROR: Node_Remove: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -620,7 +620,7 @@ int Nfixup(
 
 	error = EAVLp_Find(context, EAVL_FIND_EQ, NULL, NULL, nodep[k], &dummy);
 
-	if (!error)
+	if (error != EAVL_OK)
 		{
 		container_of(nodep[k], struct node, node)->count++;
 		error = EAVLp_Fixup(context);
@@ -709,28 +709,28 @@ int main(
 
 	Init_nodes(nodes, nodep, NODES-1);
 
-	if ((error = EAVLp_Tree_Init(&tree, NULL, &cbset)))
+	if ((error = EAVLp_Tree_Init(&tree, NULL, &cbset)) != EAVL_OK)
 		{
 		printf("ERROR: Tree_Init: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
 		exit(1);
 		}
 
-	if ((error = EAVLp_Context_Init(&context, NULL)))
+	if ((error = EAVLp_Context_Init(&context, NULL)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Init: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
 		exit(1);
 		}
 
-	if ((error = EAVLp_Context_Associate(&context, &tree)))
+	if ((error = EAVLp_Context_Associate(&context, &tree)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Associate: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
 		exit(1);
 		}
 
-	if ((error = EAVLp_Load(&context, count, nodep)))
+	if ((error = EAVLp_Load(&context, count, nodep)) != EAVL_OK)
 		{
 		printf("ERROR: Tree_Load: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -749,7 +749,7 @@ int main(
 		{
 		EAVLp_node_t*		result = NULL;
 
-		if ((error = EAVLp_First(
+		if (EAVL_OK != (error = EAVLp_First(
 				&context,
 				k,
 				EAVL_ORDER_IN,
@@ -782,7 +782,7 @@ int main(
 
 		printf("\n");
 
-		if ((error = EAVLp_Find(
+		if (EAVL_OK != (error = EAVLp_Find(
 				&context,
 				EAVL_FIND_EQ,
 				NULL,
@@ -819,7 +819,7 @@ int main(
 
 		printf("\n");
 
-		if ((error = EAVLp_Find(
+		if (EAVL_OK != (error = EAVLp_Find(
 				&context,
 				EAVL_FIND_EQ,
 				NULL,

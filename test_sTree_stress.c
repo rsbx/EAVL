@@ -54,6 +54,10 @@
 #include "container_of.h"
 
 
+#define SUCCESS	(42)
+#define FAILURE	(-42)
+
+
 #ifndef QUIET_UNUSED
 #define QUIET_UNUSED(var)	var = var
 #endif	/* QUIET_UNUSED */
@@ -257,7 +261,7 @@ static int hash_init(
 	{
 	*ctx = 0;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -267,7 +271,7 @@ static int hash_clear(
 	{
 	*hash = -1u;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -297,7 +301,7 @@ static int hash_update(
 
 	*ctx = ~crc;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -309,7 +313,7 @@ static int hash_final(
 	*hash = *ctx;
 	*ctx = -1u;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -354,7 +358,7 @@ static void hash_copy(
 									\
 				default:				\
 					(*CBP) = NULL;			\
-					(RES) = CBres;			\
+					(RES) = FAILURE;		\
 				}					\
 			}						\
 		} while (0)
@@ -392,11 +396,11 @@ static int rwalk3(
 	EAVLs_node_t*		T1;
 	EAVL_dir_t		cmp = EAVL_CMP_SAME;
 	int			limiter = 0;
-	int			error = 0;
+	int			error = SUCCESS;
 
 	if (!node || !*cbp || !(want & (MASK_PRE | MASK_IN | MASK_POST)))
 		{
-		return 0;
+		return SUCCESS;
 		}
 
 	if (compare && *start)
@@ -407,14 +411,14 @@ static int rwalk3(
 	T0 = EAVLs_GET_CHILD(node, EAVL_DIR_OTHER(dir));
 	T1 = EAVLs_GET_CHILD(node, dir);
 
-	if (!error && *cbp && T0 && (want & MASK_PRE) && (!*start || (cmp == EAVL_CMP_SAME)))
+	if (error != FAILURE && *cbp && T0 && (want & MASK_PRE) && (!*start || (cmp == EAVL_CMP_SAME)))
 		{
 		CALLBACK(node, MASK_PRE, cbp, cbdata, limiter, error);
 		*start = NULL;
 		cmp = EAVL_CMP_SAME;
 		}
 
-	if (!error && *cbp && !limiter && T0)
+	if (error != FAILURE && *cbp && !limiter && T0)
 		{
 		if (!*start || ((cmp == EAVL_CMP_SAME) && (want & MASK_PRE)))
 			{
@@ -426,7 +430,7 @@ static int rwalk3(
 			}
 		}
 
-	if (!error && *cbp
+	if (error != FAILURE && *cbp
 			&& (
 				(want & MASK_IN)
 				|| (!T0 && (want & MASK_PRE))
@@ -451,7 +455,7 @@ static int rwalk3(
 		cmp = EAVL_CMP_SAME;
 		}
 
-	if (!error && *cbp && !limiter && T1)
+	if (error != FAILURE && *cbp && !limiter && T1)
 		{
 		if (!*start || ((cmp == EAVL_CMP_SAME) && (want & (MASK_PRE | MASK_IN))))
 			{
@@ -463,7 +467,7 @@ static int rwalk3(
 			}
 		}
 
-	if (!error && *cbp && T1 && (want & MASK_POST) && (!*start || (cmp == EAVL_CMP_SAME)))
+	if (error != FAILURE && *cbp && T1 && (want & MASK_POST) && (!*start || (cmp == EAVL_CMP_SAME)))
 		{
 		CALLBACK(node, MASK_POST, cbp, cbdata, limiter, error);
 		*start = NULL;
@@ -771,7 +775,7 @@ static int node_track(
 		{
 		printf("ERROR: node_track: already tracked\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 	tracker->presence[k] |= BIT_PRESENT;
@@ -780,7 +784,7 @@ static int node_track(
 	tracker->count++;
 	tracker->tracker->total++;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -797,7 +801,7 @@ static int node_untrack(
 		{
 		printf("ERROR: node_untrack: was not tracked\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	tracker->presence[k] &= (unsigned char)~BIT_PRESENT;
 
@@ -806,14 +810,14 @@ static int node_untrack(
 		{
 		printf("ERROR: node_untrack: key and shuffle location mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	tracker->shuffle[p] = tracker->shuffle[tracker->count-1];
 	tracker->position[container_of(tracker->shuffle[p], node_t, node)->key] = p;
 	tracker->count--;
 	tracker->tracker->total--;
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -1032,7 +1036,7 @@ static int ecb_verify(
 			)
 		{
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 	if (container_of(eavl_node, node_t, node)->weight !=
 			1
@@ -1047,7 +1051,7 @@ printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 			)
 		{
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 	if (container_of(eavl_node, node_t, node)->sum !=
 			1
@@ -1063,7 +1067,7 @@ printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 			)
 		{
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
-		return EAVL_ERROR;
+		return EAVL_CB_ERROR;
 		}
 	if (!((cbdata_t*)cbdata)->params->timing)
 		{
@@ -1096,7 +1100,7 @@ printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
 		if (hash_cmp(&container_of(eavl_node, node_t, node)->hash, &hash))
 			{
 printf("%s:%u\n", __FILE__, __LINE__);fflush(NULL);
-			return EAVL_ERROR;
+			return EAVL_CB_ERROR;
 			}
 		}
 
@@ -1252,13 +1256,13 @@ static int cb_verify(
 		{
 		printf("ERROR: cb_verify: position >= count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 	if (tracker->shuffle[i] != node)
 		{
 		printf("ERROR: cb_verify: shuffle[position] != node\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	i = container_of(node, node_t, node)->key;
@@ -1266,7 +1270,7 @@ static int cb_verify(
 		{
 		printf("ERROR: cb_verify: !presence[key]\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	childL = EAVLs_GET_CHILD(node, EAVL_DIR_LEFT);
@@ -1279,7 +1283,7 @@ static int cb_verify(
 		{
 		printf("ERROR: cb_verify: Improper node relationship\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	return ecb_verify(node, childL, childR, cbdata);
@@ -1296,7 +1300,7 @@ static int tree_verify(
 
 	if (!tracker)
 		{
-		return -1;
+		return FAILURE;
 		}
 
 	if (!(cbdata = create_cbData(params)))
@@ -1353,11 +1357,11 @@ static int get_uint(
 
 	if (errno || (endc == str) || (*endc != '\0'))
 		{
-		return 1;
+		return FAILURE;
 		}
 
 	*uintp = (unsigned int)t;
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -1429,7 +1433,7 @@ static master_track_t* create_mtrack(
 
 	memset(mtrack->tracker.presence, 0, params->size);
 
-	if ((error = EAVLs_Tree_Init(&mtrack->tracker.tree, NULL, &mtrack->cbset)))
+	if ((error = EAVLs_Tree_Init(&mtrack->tracker.tree, NULL, &mtrack->cbset)) != EAVL_OK)
 		{
 		printf("ERROR: Tree_Init: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1447,7 +1451,7 @@ static master_track_t* create_mtrack(
 
 	mtrack->tracker.cbdata->tracker = &mtrack->tracker;
 
-	if ((error = EAVLs_Context_Init(&mtrack->tracker.context, &ecb_pathe, mtrack->tracker.cbdata)))
+	if ((error = EAVLs_Context_Init(&mtrack->tracker.context, &ecb_pathe, mtrack->tracker.cbdata)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Init: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1455,7 +1459,7 @@ static master_track_t* create_mtrack(
 		return NULL;
 		}
 
-	if ((error = EAVLs_Context_Associate(&mtrack->tracker.context, &mtrack->tracker.tree)))
+	if ((error = EAVLs_Context_Associate(&mtrack->tracker.context, &mtrack->tracker.tree)) != EAVL_OK)
 		{
 		printf("ERROR: Context_Associate: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
@@ -1480,26 +1484,26 @@ static int check_tree_track(
 		{
 		printf("ERROR: master_track mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	if (&tracker->tree != EAVLs_CONTEXT_TREE(&tracker->context))
 		{
 		printf("ERROR: context tree mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	if (tracker->cbdata != tracker->context.common.cbdata)
 		{
 		printf("ERROR: context cbdata mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	root = EAVLs_TREE_ROOT(&tracker->tree);
 	if ((root && !tracker->count) || (!root && tracker->count))
 		{
 		printf("ERROR: tree root and tracker count mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 	for (i=0; i<params->size; i++)
@@ -1514,37 +1518,37 @@ static int check_tree_track(
 			{
 			printf("ERROR: NULL shuffle position\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		k = container_of(tracker->shuffle[i], node_t, node)->key;
 		if (k >= params->size)
 			{
 			printf("ERROR: node key >= size: %u\n", k);
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		if (i != tracker->position[k])
 			{
 			printf("ERROR: shuffle position mismatch\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		if (!(tracker->presence[k] & BIT_PRESENT))
 			{
 			printf("ERROR: BIT_PRESENT mismatch\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		if (tracker->presence[k] & BIT_PROCESSED)
 			{
 			printf("ERROR: shuffle entries not unique\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		tracker->presence[k] |= BIT_PROCESSED;
 		}
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -1553,12 +1557,12 @@ static int check_mtrack(
 		params_t*		params
 		)
 	{
-	int			error;
+	if (check_tree_track(mtrack, &mtrack->tracker, params) != SUCCESS)
+		{
+		return FAILURE;
+		}
 
-	if ((error = check_tree_track(mtrack, &mtrack->tracker, params)))
-		{}
-
-	return error;
+	return SUCCESS;
 	}
 
 
@@ -1594,21 +1598,21 @@ static int cb_find_next(
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	if (!tracker->found)
 		{
 		printf("ERROR: found == 0\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	if (tracker->order[--(tracker->found)] != node)
 		{
 		printf("ERROR: enumeration mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	if (!tracker->found)
@@ -1616,7 +1620,7 @@ static int cb_find_next(
 		return EAVL_CB_FINISHED;
 		}
 
-	return EAVL_OK;
+	return EAVL_CB_OK;
 	}
 
 
@@ -1638,24 +1642,24 @@ static int cb_first_next(
 		{
 		printf("ERROR: found > count\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	if (!tracker->found)
 		{
 		printf("ERROR: found == 0\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
 	if (tracker->order[--(tracker->found)] != node)
 		{
 		printf("ERROR: enumeration mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return EAVL_CB_ERROR;
 		}
 
-	return EAVL_OK;
+	return EAVL_CB_OK;
 	}
 
 
@@ -1690,7 +1694,7 @@ static int relop(
 		default:
 			printf("ERROR: Bad rel op: %u\n", rel);
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			break;
 		}
 	}
@@ -1757,13 +1761,13 @@ static int test_find_first_next(
 						{
 						printf("ERROR: Find(%u, %u) found non-existing node\n", rel, r);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 					if (!(rel & 0x3u) && container_of(node, node_t, node)->key == r)
 						{
 						printf("ERROR: find() %u == %u\n", r, container_of(node, node_t, node)->key);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 					if ((rel & 0x3u) && (tracker->presence[r] & BIT_PRESENT)
 							&& container_of(node, node_t, node)->key != r
@@ -1771,7 +1775,7 @@ static int test_find_first_next(
 						{
 						printf("ERROR: find() %u != %u\n", r, container_of(node, node_t, node)->key);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 					if (rel != EAVL_FIND_EQ)
 						{
@@ -1782,7 +1786,7 @@ static int test_find_first_next(
 								{
 								printf("ERROR: find() rel:%u r:%u n:%u\n", rel, r, container_of(node, node_t, node)->key);
 								printf("\t%s:%u\n", __FILE__, __LINE__);
-								return -1;
+								return FAILURE;
 								}
 							do
 								{
@@ -1799,14 +1803,14 @@ static int test_find_first_next(
 									{
 									printf("ERROR: next() rel:%u r:%u n:%u\n", rel, r, container_of(node, node_t, node)->key);
 									printf("\t%s:%u\n", __FILE__, __LINE__);
-									return -1;
+									return FAILURE;
 									}
 								}
 							else if (error != EAVL_NOTFOUND)
 								{
 								printf("ERROR: Next(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
 								printf("\t%s:%u\n", __FILE__, __LINE__);
-								return -1;
+								return FAILURE;
 								}
 							}
 						}
@@ -1827,14 +1831,14 @@ static int test_find_first_next(
 								{
 								printf("ERROR: next() d:%u n:%u r:%u\n", dir, container_of(node, node_t, node)->key, r);
 								printf("\t%s:%u\n", __FILE__, __LINE__);
-								return -1;
+								return FAILURE;
 								}
 							}
 						else if (error != EAVL_NOTFOUND)
 							{
 							printf("ERROR: Next(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						}
 
@@ -1842,17 +1846,17 @@ static int test_find_first_next(
 						{
 						tracker->found = f;
 						RWALK3(EAVLs_TREE_ROOT(&tracker->tree), EAVL_DIR_OTHER(dir), MASK_IN, &start, mtrack->cbset.compare, &cb_find_next, cbdata, error);
-						if (error)
+						if (error != SUCCESS)
 							{
-							printf("ERROR: rwalk: %d\n", error);
+							printf("ERROR: rwalk:\n");
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						if (tracker->found)
 							{
 							printf("ERROR: test_find_first_next: found(%u) != Find_Next(%u)\n", tracker->found, f);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						}
 
@@ -1863,7 +1867,7 @@ static int test_find_first_next(
 						{
 						printf("ERROR: Find(%u, %u) existing node not found\n", rel, r);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 					if (rel != EAVL_FIND_EQ && tracker->count)
 						{
@@ -1877,7 +1881,7 @@ static int test_find_first_next(
 							{
 							printf("ERROR: First(%u, %u) = (%d) unexpected result\n", dir, EAVL_ORDER_IN, error);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						if ((!(rel & 0x6u) && (container_of(node, node_t, node)->key < r))
 								|| ((rel & 0x6u) && (container_of(node, node_t, node)->key > r))
@@ -1885,7 +1889,7 @@ static int test_find_first_next(
 							{
 							printf("ERROR: %u  %u\n", r, container_of(node, node_t, node)->key);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						}
 					break;
@@ -1893,7 +1897,7 @@ static int test_find_first_next(
 				default:
 					printf("ERROR: unexpected Find() result: %d\n", error);
 					printf("\t%s:%u\n", __FILE__, __LINE__);
-					return -1;
+					return FAILURE;
 					break;
 				}
 			break;
@@ -1927,7 +1931,7 @@ static int test_find_first_next(
 						{
 						printf("ERROR: First(%u, %u) found non-node\n", dir, order);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 //printf("\t\tfirst:: d:%u o:%o m:%u\n", dir, order, want);
 
@@ -1947,7 +1951,7 @@ static int test_find_first_next(
 									);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
 //printf("\t\t%u\n", container_of(node, node_t, node)->key);
-							return -1;
+							return FAILURE;
 							}
 						}
 					else
@@ -1968,7 +1972,7 @@ static int test_find_first_next(
 							{
 							printf("ERROR: Next(%u, %u) --> %d unexpected\n", dir, order, error);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						}
 
@@ -1976,17 +1980,17 @@ static int test_find_first_next(
 						{
 						tracker->found = f;
 						RWALK3(EAVLs_TREE_ROOT(&tracker->tree), EAVL_DIR_OTHER(dir), want, &start, mtrack->cbset.compare, &cb_first_next, cbdata, error);
-						if (error)
+						if (error != SUCCESS)
 							{
-							printf("ERROR: rwalk: %d\n", error);
+							printf("ERROR: rwalk:\n");
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						if (tracker->found)
 							{
 							printf("ERROR: test_find_first_next: tracker->found non-zero (%u)\n", tracker->found);
 							printf("\t%s:%u\n", __FILE__, __LINE__);
-							return -1;
+							return FAILURE;
 							}
 						}
 					break;
@@ -1996,20 +2000,20 @@ static int test_find_first_next(
 						{
 						printf("ERROR: First(%u, %u) node not found\n", dir, order);
 						printf("\t%s:%u\n", __FILE__, __LINE__);
-						return -1;
+						return FAILURE;
 						}
 					break;
 
 				default:
 					printf("ERROR: unexpected First() result: %d\n", error);
 					printf("\t%s:%u\n", __FILE__, __LINE__);
-					return -1;
+					return FAILURE;
 					break;
 				}
 			break;
 		}
 
-	return 0;
+	return SUCCESS;
 	}
 
 
@@ -2047,7 +2051,7 @@ static int test_insertdelete(
 		{
 		printf("ERROR: Node_Find: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 //printf("%u\n", i);fflush(NULL);
@@ -2057,7 +2061,7 @@ static int test_insertdelete(
 		{
 		printf("ERROR: Node_Find result and presence mismatch\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 	if (error == EAVL_NOTFOUND)
@@ -2070,7 +2074,7 @@ static int test_insertdelete(
 			{
 			printf("ERROR: new_node FAILED\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 		do
 			{
@@ -2082,7 +2086,7 @@ static int test_insertdelete(
 			{
 			printf("ERROR: Node_Insert: %d\n", error);
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 
 		node_track(&T->node, tracker);
@@ -2103,7 +2107,7 @@ static int test_insertdelete(
 			{
 			printf("ERROR: Node_Remove: %d\n", error);
 			printf("\t%s:%u\n", __FILE__, __LINE__);
-			return -1;
+			return FAILURE;
 			}
 
 		node_untrack(node, tracker);
@@ -2111,7 +2115,7 @@ static int test_insertdelete(
 		free(container_of(node, node_t, node));
 		}
 
-	return error;
+	return SUCCESS;
 	}
 
 
@@ -2147,7 +2151,7 @@ static int test_update(
 		{
 		printf("ERROR: Node_Find(%u): %d\n", i, error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	stats->find++;
 	stats->total++;
@@ -2161,12 +2165,12 @@ static int test_update(
 		{
 		printf("ERROR: Node_Fixup: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 	stats->fixup++;
 	stats->total++;
 
-	return error;
+	return SUCCESS;
 	}
 
 
@@ -2178,7 +2182,7 @@ static int test_iterate(
 	master_track_t*		mtrack;
 	unsigned int		i;
 	unsigned int		r;
-	int			error = 0;
+	int			error;
 
 	srandom(params->random_seed);
 
@@ -2186,15 +2190,15 @@ static int test_iterate(
 		{
 		printf("ERROR: create_mtrack\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
-	if ((error = check_mtrack(mtrack, params)))
+	if (check_mtrack(mtrack, params) != SUCCESS)
 		{
-		printf("ERROR: check_mtrack: %d\n", error);
+		printf("ERROR: check_mtrack:\n");
 		printf("\t%s:%u\n", __FILE__, __LINE__);
 		destroy_mtrack(mtrack);
-		return -1;
+		return FAILURE;
 		}
 
 	for (i=0; i<params->iterations; i++)
@@ -2206,15 +2210,15 @@ static int test_iterate(
 			case 1:
 			case 2:
 //				print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
-				if ((error = test_find_first_next(mtrack, stats, params)))
+				if (test_find_first_next(mtrack, stats, params) != SUCCESS)
 					{
-					printf("ERROR: test_find_first_next: %d\n", error);
+					printf("ERROR: test_find_first_next:\n");
 					printf("\t%s:%u\n", __FILE__, __LINE__);
 					print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
 					print_recent(&mtrack->tracker);
 					print_pathestore(mtrack->tracker.cbdata->pathestore);
 					destroy_mtrack(mtrack);
-					return error;
+					return FAILURE;
 					}
 				break;
 
@@ -2224,39 +2228,39 @@ static int test_iterate(
 			case 6:
 			case 7:
 //				print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
-				if ((error = test_insertdelete(mtrack, stats, params)))
+				if (test_insertdelete(mtrack, stats, params) != SUCCESS)
 					{
-					printf("ERROR: test_insertdelete: %d\n", error);
+					printf("ERROR: test_insertdelete:\n");
 					printf("\t%s:%u\n", __FILE__, __LINE__);
 					print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
 					print_recent(&mtrack->tracker);
 					print_pathestore(mtrack->tracker.cbdata->pathestore);
 					destroy_mtrack(mtrack);
-					return error;
+					return FAILURE;
 					}
 //				print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
 				break;
 
 			default:
-				if ((error = test_update(mtrack, stats, params)))
+				if (test_update(mtrack, stats, params) != SUCCESS)
 					{
-					printf("ERROR: test_update: %d\n", error);
+					printf("ERROR: test_update:\n");
 					printf("\t%s:%u\n", __FILE__, __LINE__);
 //					print_tree(EAVLs_TREE_ROOT(&mtrack->tracker.tree));
 					destroy_mtrack(mtrack);
-					return error;
+					return FAILURE;
 					}
 				/* break; */
 			}
 
 		if (!params->timing)
 			{
-			if ((error = tree_verify(&mtrack->tracker, params)))
+			if (tree_verify(&mtrack->tracker, params) != SUCCESS)
 				{
-				printf("ERROR: tree_verify: %d\n", error);
+				printf("ERROR: tree_verify:\n");
 				printf("\t%s:%u\n", __FILE__, __LINE__);
 				destroy_mtrack(mtrack);
-				return error;
+				return FAILURE;
 				}
 			}
 		if (params->verbose)
@@ -2282,12 +2286,12 @@ static int test_iterate(
 				}
 			}
 
-		if (!params->timing && (error = check_mtrack(mtrack, params)))
+		if (!params->timing && check_mtrack(mtrack, params) != SUCCESS)
 			{
-			printf("ERROR: check_mtrack: %d\n", error);
+			printf("ERROR: check_mtrack:\n");
 			printf("\t%s:%u\n", __FILE__, __LINE__);
 			destroy_mtrack(mtrack);
-			return -1;
+			return FAILURE;
 			}
 		}
 
@@ -2299,18 +2303,18 @@ static int test_iterate(
 		{
 		printf("ERROR: Tree_Clear: %d\n", error);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 	if (mtrack->total)
 		{
 		printf("ERROR: Un-free'd nodes: %d\n", mtrack->total);
 		printf("\t%s:%u\n", __FILE__, __LINE__);
-		return -1;
+		return FAILURE;
 		}
 
 	destroy_mtrack(mtrack);
-	return error;
+	return SUCCESS;
 	}
 
 
@@ -2329,7 +2333,7 @@ static void usage(
 		{							\
 		unsigned int		GTt;				\
 									\
-		if (get_uint((&GTt), (OPTARG)))				\
+		if (get_uint((&GTt), (OPTARG)) != SUCCESS)		\
 			{						\
 			usage(*(ARGV));					\
 			exit(1);					\
@@ -2445,5 +2449,5 @@ int main(
 	printf("\n");
 	printf("total:   %8u\n", stats.total);
 
-	return result;
+	return (result == SUCCESS) ? 0 : 1;
 	}
