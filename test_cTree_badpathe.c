@@ -37,15 +37,15 @@
 
 
 char buffer[1024];
-EAVLc_node_t		*nodep[NODES];
+EAVLc_node_t*		nodep[NODES];
 struct node
 	{
-	unsigned int	val;
-	unsigned int	height;
-	unsigned int	weight;
-	unsigned int	count;
-	unsigned int	sum;
-	EAVLc_node_t	node;
+	unsigned int		val;
+	unsigned int		height;
+	unsigned int		weight;
+	unsigned int		count;
+	unsigned int		sum;
+	EAVLc_node_t		node;
 	};
 struct node			nodes[NODES];
 
@@ -80,31 +80,20 @@ typedef struct
 char bend[] = "++ ";
 
 
-void EAVLc_Node_print(EAVLc_node_t *eavl_node);
-void EAVLc_Tree_print(char *prefix, char *end, char *prefix2, int dir, EAVLc_node_t *root);
-EAVL_dir_t Node_CMP(void *ref_value, EAVLc_node_t *ref_node, EAVLc_node_t *node, void *data);
-int Node_verify(
-		EAVLc_node_t* eavl_node,
-		EAVLc_node_t* childL, EAVLc_node_t* childR,
-		void* data
-		);
+void EAVLc_Node_print(EAVLc_node_t* eavl_node);
+void EAVLc_Tree_print(char* prefix, char* end, char* prefix2, int dir, EAVLc_node_t* root);
+EAVL_dir_t Node_CMP(void* ref_value, EAVLc_node_t* ref_node, EAVLc_node_t* node, void* data);
+int Node_verify(EAVLc_node_t* eavl_node, EAVLc_node_t* childL, EAVLc_node_t* childR, void* data);
 int Node_fixup(EAVLc_node_t* eavl_node, EAVLc_node_t* childL, EAVLc_node_t* childR, void* data);
-void Init_nodes(struct node fnodes[], EAVLc_node_t *fnodep[], unsigned int count);
+void Init_nodes(struct node fnodes[], EAVLc_node_t* fnodep[], unsigned int count);
 void check_reset(unsigned int count, unsigned int state);
-int check_tree(EAVLc_context_t *context);
-void check_op(
-		EAVLc_context_t *context,
-		unsigned int index,
-		int (*op)(EAVLc_context_t *context, unsigned int k),
-		int expect,
-		char *operation,
-		unsigned int state
-		);
-void init_tree_context(EAVLc_tree_t *tree, EAVLc_context_t *context);
-void build_tree(EAVLc_tree_t *tree, EAVLc_context_t *context, unsigned int count);
-int insert(EAVLc_context_t *context, unsigned int k);
-int Eremove(EAVLc_context_t *context, unsigned int k);
-int Nfixup(EAVLc_context_t *context, unsigned int k);
+int check_tree(EAVLc_context_t* context);
+void check_op(EAVLc_context_t* context, unsigned int index, int (*op)(EAVLc_context_t* context, unsigned int k), int expect, char* operation, unsigned int state);
+void init_tree_context(EAVLc_tree_t* tree, EAVLc_context_t* context);
+void build_tree(EAVLc_tree_t* tree, EAVLc_context_t* context, unsigned int count);
+int insert(EAVLc_context_t* context, unsigned int k);
+int Eremove(EAVLc_context_t* context, unsigned int k);
+int Nfixup(EAVLc_context_t* context, unsigned int k);
 int traverse(EAVLc_context_t* context, EAVL_dir_t dir, EAVL_order_t order);
 
 
@@ -215,7 +204,7 @@ printf("!!!\n");
 		temp = realloc(pathestore->elements, sizeof(EAVLc_pathelement_t)*count);
 		if (!temp)
 			{
-			// WARNING: This MAY cause a SEGFAULT!
+			// WARNING: This WILL cause a SEGFAULT!
 printf("!!!!\n");
 			exit(1);
 			return NULL;
@@ -288,9 +277,12 @@ static void destroy_cbData(
 	}
 
 
-void check_reset(unsigned int count, unsigned int state)
+void check_reset(
+		unsigned int		count,
+		unsigned int		state
+		)
 	{
-	unsigned int	i;
+	unsigned int		i;
 
 	opcount = 0;
 	checksize = count;
@@ -307,7 +299,7 @@ int check_tree(
 	{
 	EAVLc_context_t		checkcontext;
 	unsigned int		i;
-	EAVLc_node_t		*dummy;
+	EAVLc_node_t*		dummy;
 	int			error;
 	int			result = 0;
 
@@ -368,15 +360,15 @@ out:
 
 
 void check_op(
-		EAVLc_context_t *context,
-		unsigned int index,
-		int (*op)(EAVLc_context_t *context, unsigned int k),
-		int expect,
-		char *operation,
-		unsigned int state
+		EAVLc_context_t*	context,
+		unsigned int		index,
+		int (*op)(EAVLc_context_t* context, unsigned int k),
+		int			expect,
+		char*			operation,
+		unsigned int		state
 		)
 	{
-	int error;
+	int			error;
 
 	if (check_tree(context))
 		{
@@ -408,20 +400,25 @@ printf("%10d\r", opcount); fflush(NULL);
 
 
 void EAVLc_Node_print(
-		EAVLc_node_t *eavl_node
+		EAVLc_node_t*		eavl_node
 		)
 	{
-	struct node *node;
+	struct node*		node;
 
 	node = container_of(eavl_node, struct node, node);
 	printf("%d", node->val);
 	}
 
 
-void EAVLc_Tree_print(char *prefix, char *end, char *prefix2, int dir, EAVLc_node_t *root)
+void EAVLc_Tree_print(char*		prefix,
+		char*			end,
+		char*			prefix2,
+		int			dir,
+		EAVLc_node_t*		root
+		)
 	{
-	char *last;
-	char *nend;
+	char*			last;
+	char*			nend;
 
 	if (!root)
 		{
@@ -449,9 +446,9 @@ void EAVLc_Tree_print(char *prefix, char *end, char *prefix2, int dir, EAVLc_nod
 	printf("%s%c---(", prefix, bend[dir]);
 	EAVLc_Node_print(root);
 	printf(")[a:%p  L:%p  R:%p  r:%lu  b:%u]\n",
-			(void *)root,
-			(void *)EAVLc_GET_CHILD(root, 0),
-			(void *)EAVLc_GET_CHILD(root, 1),
+			(void*)root,
+			(void*)EAVLc_GET_CHILD(root, 0),
+			(void*)EAVLc_GET_CHILD(root, 1),
 			EAVLc_GET_REFS(root),
 			EAVLc_GET_BAL(root)
 			);
@@ -475,14 +472,14 @@ void EAVLc_Tree_print(char *prefix, char *end, char *prefix2, int dir, EAVLc_nod
 
 
 EAVL_dir_t Node_CMP(
-		void *ref_value,
-		EAVLc_node_t *ref_node,
-		EAVLc_node_t *node,
-		void *data
+		void*			ref_value,
+		EAVLc_node_t*		ref_node,
+		EAVLc_node_t*		node,
+		void*			data
 		)
 	{
-	unsigned int *valp = &container_of(node, struct node, node)->val;
-	unsigned int *refp = (unsigned int *)ref_value;
+	unsigned int*		valp = &container_of(node, struct node, node)->val;
+	unsigned int*		refp = (unsigned int*)ref_value;
 
 	UNUSED(data);
 
@@ -627,18 +624,19 @@ static int Node_release(
 	}
 
 
-static EAVLc_node_t* Ndup(EAVLc_node_t* node, void* cbdata)
+static EAVLc_node_t* Ndup(
+		EAVLc_node_t*		node,
+		void*			cbdata
+		)
 	{
 	UNUSED(node);
 	UNUSED(cbdata);
-
-	printf("NodeDupe::  %p\n", (void*)node);
 
 	return NULL;
 	}
 
 
-EAVLc_cbset_t	cbset =
+EAVLc_cbset_t cbset =
 		{
 		&Node_CMP,
 		&Ndup,
@@ -648,12 +646,12 @@ EAVLc_cbset_t	cbset =
 
 
 void Init_nodes(
-		struct node fnodes[],
-		EAVLc_node_t *fnodep[],
-		unsigned int count
+		struct node		fnodes[],
+		EAVLc_node_t*		fnodep[],
+		unsigned int		count
 		)
 	{
-	unsigned int i;
+	unsigned int		i;
 
 	for (i=0; i<count; i++)
 		{
@@ -668,11 +666,11 @@ void Init_nodes(
 
 
 void init_tree_context(
-		EAVLc_tree_t *tree,
-		EAVLc_context_t *context
+		EAVLc_tree_t*		tree,
+		EAVLc_context_t*	context
 		)
 	{
-	int error;
+	int			error;
 
 	UNUSED(tree);
 
@@ -713,12 +711,12 @@ void init_tree_context(
 
 
 void build_tree(
-		EAVLc_tree_t *tree,
-		EAVLc_context_t *context,
-		unsigned int count
+		EAVLc_tree_t*		tree,
+		EAVLc_context_t*	context,
+		unsigned int		count
 		)
 	{
-	int error;
+	int			error;
 
 	init_tree_context(tree, context);
 	if ((error = EAVLc_Load(context, count, nodep)))
@@ -737,12 +735,12 @@ void build_tree(
 
 
 int insert(
-		EAVLc_context_t *context,
-		unsigned int k
+		EAVLc_context_t*	context,
+		unsigned int		k
 		)
 	{
-	EAVLc_node_t *existing;
-	int error;
+	EAVLc_node_t*		existing;
+	int			error;
 
 //	printf("%d\n\n", k);
 
@@ -778,12 +776,12 @@ int insert(
 
 
 int Eremove(
-		EAVLc_context_t *context,
-		unsigned int k
+		EAVLc_context_t*	context,
+		unsigned int		k
 		)
 	{
-	int error = 0;
-	EAVLc_node_t *dummy;
+	int			error = 0;
+	EAVLc_node_t*		dummy;
 
 //	printf("\n");
 //	*buffer = '\0';
@@ -874,8 +872,8 @@ int traverse(
 		EAVL_order_t		order
 		)
 	{
-	EAVLc_node_t*	result;
-	int		error;
+	EAVLc_node_t*		result;
+	int			error;
 
 	do
 		{
@@ -886,8 +884,8 @@ int traverse(
 		{
 		printf("Found: (%d)[n:%p a:%p]\n",
 				container_of(result, struct node, node)->val,
-				(void *)container_of(result, struct node, node),
-				(void *)result
+				(void*)container_of(result, struct node, node),
+				(void*)result
 				);
 
 		do
@@ -906,16 +904,19 @@ int traverse(
 	}
 
 
-int main(int argc, char **argv)
+int main(
+		int			argc,
+		char**			argv
+		)
 	{
-	unsigned int count = 0;
-	EAVLc_context_t	context;
-	EAVLc_tree_t	tree;
-	int error;
-	unsigned int k;
-	unsigned int i;
+	unsigned int		count = 0;
+	EAVLc_context_t		context;
+	EAVLc_tree_t		tree;
+	int			error;
+	unsigned int		k;
+	unsigned int		i;
 /*
-	INFO("void *:", void *);
+	INFO("void*:", void*);
 	printf("\n");
 
 	INFO("char:", char);
@@ -987,7 +988,7 @@ int main(int argc, char **argv)
 
 	for (k=EAVL_DIR_LEFT; k<=EAVL_DIR_RIGHT; k++)
 		{
-		EAVLc_node_t *result = NULL;
+		EAVLc_node_t*		result = NULL;
 
 		do
 			{
@@ -1013,8 +1014,8 @@ int main(int argc, char **argv)
 			{
 			printf("Found: (%d)[n:%p a:%p]{d:%u}\n",
 					container_of(result, struct node, node)->val,
-					(void *)container_of(result, struct node, node),
-					(void *)result,
+					(void*)container_of(result, struct node, node),
+					(void*)result,
 					k
 					);
 			}
@@ -1023,8 +1024,8 @@ int main(int argc, char **argv)
 
 	if (argc > 2)
 		{
-		int val = atoi(argv[2]);
-		EAVLc_node_t *result;
+		int			val = atoi(argv[2]);
+		EAVLc_node_t*		result;
 
 		printf("\n");
 
@@ -1046,8 +1047,8 @@ int main(int argc, char **argv)
 			{
 			printf("Found: (%d)[n:%p a:%p]\n",
 					container_of(result, struct node, node)->val,
-					(void *)container_of(result, struct node, node),
-					(void *)result
+					(void*)container_of(result, struct node, node),
+					(void*)result
 					);
 			}
 		else
@@ -1059,9 +1060,9 @@ int main(int argc, char **argv)
 
 	if (argc > 3)
 		{
-		unsigned int val = (unsigned int)strtol(argv[2], NULL, 10);
-		unsigned int dir = (unsigned int)strtol(argv[3], NULL, 10);
-		EAVLc_node_t *result;
+		unsigned int		val = (unsigned int)strtol(argv[2], NULL, 10);
+		unsigned int		dir = (unsigned int)strtol(argv[3], NULL, 10);
+		EAVLc_node_t*		result;
 
 		printf("\n");
 
@@ -1088,8 +1089,8 @@ int main(int argc, char **argv)
 			{
 			printf("Found: (%d)[n:%p a:%p]\n",
 					container_of(result, struct node, node)->val,
-					(void *)container_of(result, struct node, node),
-					(void *)result
+					(void*)container_of(result, struct node, node),
+					(void*)result
 					);
 
 			error = EAVLc_Next(
@@ -1243,7 +1244,7 @@ int main(int argc, char **argv)
 	srandom(2);
 	while (1)
 		{
-		EAVLc_node_t *dummy;
+		EAVLc_node_t*		dummy;
 
 		k = (unsigned int)random()%count;
 		do

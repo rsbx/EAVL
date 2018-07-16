@@ -324,7 +324,7 @@ static void hash_copy(
 		{							\
 		if ((*CBP))						\
 			{						\
-			int		CBres;				\
+			int			CBres;			\
 									\
 			CBres = (**(CBP))((NODE), (COVER), (CBDATA));	\
 			switch (CBres)					\
@@ -351,8 +351,8 @@ static void hash_copy(
 #define RWALK3(NODE, DIR, WANT, START, COMPARE, CB, CBDATA, RES)	\
 	do								\
 		{							\
-		void*		RW3_start = (START);			\
-		cb_t*		RW3_cb = (CB);				\
+		void*			RW3_start = (START);		\
+		cb_t*			RW3_cb = (CB);			\
 									\
 		(RES) = rwalk3(						\
 				(NODE),					\
@@ -605,9 +605,9 @@ static void tree_print(
 			prefix, TREE_PRINT_STR_BEND[dir],
 			T->key);
 //	printf("[a:%p  L:%p  R:%p  r:%lu  b:%u]",
-//			(void *)root,
-//			(void *)EAVLp_GET_CHILD(root, 0),
-//			(void *)EAVLp_GET_CHILD(root, 1),
+//			(void*)root,
+//			(void*)EAVLp_GET_CHILD(root, 0),
+//			(void*)EAVLp_GET_CHILD(root, 1),
 //			EAVLp_GET_BAL(root)
 //			);
 	printf("[a:%p b:%u]", (void*)root, EAVLp_GET_BAL(root));
@@ -668,8 +668,8 @@ static EAVL_dir_t ecb_cmp(
 		void*			cbdata
 		)
 	{
-	unsigned int *valp = &container_of(node, node_t, node)->key;
-	unsigned int *refp = (unsigned int *)ref_value;
+	unsigned int*		valp = &container_of(node, node_t, node)->key;
+	unsigned int*		refp = (unsigned int*)ref_value;
 
 	QUIET_UNUSED(cbdata);
 
@@ -1929,7 +1929,7 @@ static int test_iterate(
 	for (i=0; i<params->iterations; i++)
 		{
 		r = (unsigned int)random();
-		switch(r & ((mtrack->tracker.count) ? 0x1f : 0x07))
+		switch (r & ((mtrack->tracker.count) ? 0x1f : 0x07))
 			{
 			case 0:
 			case 1:
@@ -2065,7 +2065,11 @@ static void usage(
 		} while (0)
 
 
-int main(int argc, char **argv)
+int main(
+		int argc,
+		char**
+		argv
+		)
 	{
 	params_t		params;
 	stats_t			stats;
